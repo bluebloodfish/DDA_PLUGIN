@@ -105,8 +105,6 @@ namespace DDAApi.WebApi
                     ErrorId = ""
                 });
 
-
-
                 OrderProcessResult result = new OrderProcessResult();
                 result = await this._orderProcessor.POSCodeOrder(pOrder);
 
@@ -208,21 +206,6 @@ namespace DDAApi.WebApi
                              }
                     );
                 }
-                //var log = new TT_OrderProcess_Log();
-
-                //if (result.Result.Status == OrderProcessStaTtusEnum.Success || result.Result.Status == OrderProcessStatusEnum.PrinterServerNoResponce) {
-                //    log.DDAOrderNo = result.PosOrderNo;
-                //}
-
-                //log.TTOrderId = pOrder.Order.TT_Order_Id.ToString();
-                //log.PlatformOrderNo = pOrder.Order.Order_No;
-                //log.LogDateTime = DateTime.Now;
-                //log.Status = result.Result.Status.ApiCode();
-                //log.StatusNotes = result.Result.Message;
-                //log.ErrorId = result.ErrorId;
-
-                //await this._orderProcessLogManage.AddOrderProcessLog(log);
-
 
                 switch (result.Result.Status)
                 {
@@ -251,9 +234,6 @@ namespace DDAApi.WebApi
                 this._logger.LogError($"Errid-{errId} : {e.Message}");
                 return Ok(new { code = 2001, message = "Server Error", data = new { OrderNo = "" } });
             }
-
-
-
             
         }
 
@@ -291,6 +271,8 @@ namespace DDAApi.WebApi
 
         }
 
+
+        #region MISC Apis
         [HttpGet("GetOrderNo/{id}")]
         public IActionResult GetOrderNo(int id)
         {
@@ -309,14 +291,16 @@ namespace DDAApi.WebApi
         }
 
         [HttpGet("AutoGetOrderNo/{id}")]
-        public IActionResult AutoGetOrderNo(int id) {
+        public IActionResult AutoGetOrderNo(int id)
+        {
             var orderno = this._orderNoQueueProvider.GetNewOrderNo();
             if (!string.IsNullOrEmpty(orderno))
             {
 
                 this._logger.LogInformation($"Auto - {id} - {orderno}");
             }
-            else {
+            else
+            {
                 this._logger.LogError($"Auto - {id} - empty");
             }
 
@@ -333,8 +317,10 @@ namespace DDAApi.WebApi
             {
                 var ttIdList = this._orderHLog.GetOrderHLogs(orderNo);
                 this._logger.LogInformation("CancelOrder API running");
-                if (ttIdList != null && ttIdList.Count() > 0) {
-                    foreach (var orderId in ttIdList) {
+                if (ttIdList != null && ttIdList.Count() > 0)
+                {
+                    foreach (var orderId in ttIdList)
+                    {
                         this._cancelOrderQueueService.Enqueue(orderId);
                     }
                 }
@@ -349,7 +335,8 @@ namespace DDAApi.WebApi
 
         }
 
-        public class CancelOrderRequest {
+        public class CancelOrderRequest
+        {
             public string OrderNo { get; set; }
 
         }
@@ -374,7 +361,8 @@ namespace DDAApi.WebApi
             }
         }
 
-        private bool isTableAvaliableForOrder(PlatformOrder pOrder) {
+        private bool IsTableAvaliableForOrder(PlatformOrder pOrder)
+        {
             if (pOrder.Order.Delivery_Type == 2
                     && pOrder.Order.Pay_Status == 1
                     && !string.IsNullOrEmpty(pOrder.Order.Table_No))
@@ -388,12 +376,15 @@ namespace DDAApi.WebApi
                     return true;
                 }
             }
-            else {
+            else
+            {
                 return true;
             }
         }
+        #endregion
 
-      
+
+
 
 
     }

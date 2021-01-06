@@ -61,7 +61,7 @@ namespace DDAApi.OrderQueue
 
         public async Task<OrderProcessResult> SimpleOrder(PlatformOrder pOrder)
         {
-            if (!isTableAvaliableForOrder(pOrder))
+            if (!IsTableAvaliableForOrder(pOrder))
             {
                 var errorId = TokenFactory.GenerateErrorId();
                 this._logger.LogError($"{errorId} - Order Error: PlatOrderNo: {pOrder.Order.Order_No} from {pOrder.Platform_Name}, Table: {pOrder.Order.Table_No} is occupied!!");
@@ -103,7 +103,7 @@ namespace DDAApi.OrderQueue
                 }
                 else
                 {
-                    assignOrderNo(hospOrder, orderNo);
+                    AssignOrderNo(hospOrder, orderNo);
                 }
 
                 int r = await _orderManage.SaveOrder(hospOrder);
@@ -172,7 +172,7 @@ namespace DDAApi.OrderQueue
 
             bool isMergeOrder = false;
 
-            if (!isTableAvaliableForOrder(pOrder))
+            if (!IsTableAvaliableForOrder(pOrder))
             {
                 //Table is occupied.
 
@@ -257,59 +257,10 @@ namespace DDAApi.OrderQueue
                     }
                     else
                     {
-                        assignOrderNo(hospOrder, orderNo);
+                        AssignOrderNo(hospOrder, orderNo);
                     }
 
                     r = await _orderManage.SaveOrder(hospOrder);
-                    //if (r > 0)
-                    //{
-                    //    try
-                    //    {
-                    //        if (!string.IsNullOrEmpty(this._options.PrinterServer))
-                    //        {
-                    //            await Print_Util.PrintDocket(this._options.PrinterServer, this._options.PrinterServerPort, orderNo, 0);
-                    //        }
-
-                    //        if (this._options.AutoPrintBill == 1)
-                    //        {
-                    //            await Print_Util.PrintDocket(this._options.PrinterServer, this._options.PrinterServerPort, orderNo, 1);
-                    //        }
-
-                    //        return new OrderProcessResult
-                    //        {
-                    //            Result = OrderProcessStatusFactory.Success(),
-                    //            PosOrderNo = orderNo,
-                    //            TTOrderId = pOrder.Order.TT_Order_Id
-                    //        };
-                    //    }
-                    //    catch (Exception e)
-                    //    {
-                    //        var errorId = TokenFactory.GenerateErrorId();
-                    //        this._logger.LogError($"{errorId} - {e.Message}");
-                    //        var result = OrderProcessStatusFactory.PrinterServerNoResponce();
-                    //        return new OrderProcessResult
-                    //        {
-                    //            Result = result,
-                    //            PosOrderNo = orderNo,
-                    //            TTOrderId = pOrder.Order.TT_Order_Id,
-                    //            ErrorId = errorId,
-                    //        };
-
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    var errorId = TokenFactory.GenerateErrorId();
-                    //    var result = OrderProcessStatusFactory.PosInnerError(innerMessage: "");
-                    //    this._logger.LogError($"{errorId} - Failed to save order info to database.");
-                    //    return new OrderProcessResult
-                    //    {
-                    //        Result = result,
-                    //        PosOrderNo = "",
-                    //        TTOrderId = pOrder.Order.TT_Order_Id,
-                    //        ErrorId = errorId
-                    //    };
-                    //}
                 }
                 else {
                     orderNo = hospOrder.OrderHead.OrderNo;
@@ -396,7 +347,7 @@ namespace DDAApi.OrderQueue
 
         }
 
-        private void assignOrderNo(HospOrder order, string orderNo) {
+        private void AssignOrderNo(HospOrder order, string orderNo) {
             if (order.OrderHead != null) {
                 order.OrderHead.OrderNo = orderNo;
             }
@@ -415,7 +366,7 @@ namespace DDAApi.OrderQueue
 
         }
 
-        private bool isTableAvaliableForOrder(PlatformOrder pOrder)
+        private bool IsTableAvaliableForOrder(PlatformOrder pOrder)
         {
             if (pOrder.Order.Delivery_Type == 2
                     && pOrder.Order.Pay_Status == 1

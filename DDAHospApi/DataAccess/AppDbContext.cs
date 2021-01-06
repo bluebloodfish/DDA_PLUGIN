@@ -16,8 +16,6 @@ namespace DDAApi.DataAccess
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
-            //var databaseCreator = (Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator);
-            //databaseCreator.CreateTables();
         }
         
         public DbSet<Category> Catregories { get; set; }
@@ -39,9 +37,6 @@ namespace DDAApi.DataAccess
             builder.Entity<HospOrderItem>().HasKey(i => new { i.OrderNo, i.IDNo, i.ItemCode});
             builder.Entity<HospRecvAcct>().HasKey(i => new { i.OrderNo, i.IDNo });
             builder.Entity<DDAVersion>().HasKey(i => i.Version);
-
-            //builder.Entity<TT_ApiSetting>().HasData(new TT_ApiSetting {Id=1, HttpBaseUrl = "", OnlineOrderStartYear= -1});
-            //builder.Entity(typeof(TT_HttpCallback), b => b.Property<string>("HttpBaseUrl"));
         }
 
        

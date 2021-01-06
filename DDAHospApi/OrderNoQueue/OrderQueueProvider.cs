@@ -20,7 +20,7 @@ namespace DDAApi.OrderNoQueue
         private readonly AppDbContext _ctx;
 
         private static readonly ConcurrentQueue<OrderNoOption> _orderNoQueue = new ConcurrentQueue<OrderNoOption>();
-        private IServiceProvider _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
 
         public OrderNoQueueProvider(IServiceProvider serviceProvider)
         {
@@ -37,51 +37,7 @@ namespace DDAApi.OrderNoQueue
 
         public bool IsEmpty => _orderNoQueue.IsEmpty;
 
-        //public string GetNewOrderNo() {
-        //    lock (this) {
-        //        OrderNoOption orderNoOption = new OrderNoOption();
-
-        //        if (_orderNoQueue.IsEmpty) {
-        //            Refilled();
-        //        }
-
-        //        var result = _orderNoQueue.TryDequeue(out orderNoOption);
-        //        if (result)
-        //        {
-        //            var now = DateTime.Now;
-        //            if (now.Date.Equals(orderNoOption.GenerateDate))
-        //            {
-        //                return orderNoOption.OrderNo;
-        //            }
-        //            else if (now.Year > orderNoOption.GenerateDate.Year)
-        //            {
-        //                YearLetter++;
-        //                MaxFixNo = 0;
-        //                GenerateDate = now.Date;
-
-        //                ChangeSeed(new OrderNoParts { YearLetter = YearLetter, CurrentMaxFixNo = MaxFixNo, GenerateDate = GenerateDate });
-        //                _orderNoQueue.TryDequeue(out orderNoOption);
-        //                return orderNoOption.OrderNo;
-        //            }
-        //            else //if (now.Date.CompareTo(GenerateDate.Date) > 0)
-        //            {
-        //                MaxFixNo = 0;
-        //                GenerateDate = now.Date;
-
-        //                ChangeSeed(new OrderNoParts { YearLetter = YearLetter, CurrentMaxFixNo = MaxFixNo, GenerateDate = GenerateDate });
-        //                _orderNoQueue.TryDequeue(out orderNoOption);
-        //                return orderNoOption.OrderNo;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            return "";
-        //        }
-
-        //    }
-        //}
-
-
+        
         public string GetNewOrderNo()
         {
             lock (this)
@@ -123,7 +79,7 @@ namespace DDAApi.OrderNoQueue
                             
                         }
                     }
-                    else //if (now.Date.CompareTo(GenerateDate.Date) > 0)
+                    else
                     {
                         MaxFixNo = 0;
                         GenerateDate = now.Date;

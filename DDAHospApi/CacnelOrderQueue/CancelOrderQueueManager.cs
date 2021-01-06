@@ -21,7 +21,6 @@ namespace DDAApi.CancelOrderQueue
     {
         private readonly ICancelOrderQueueProvider _provider;
         private readonly ILogger<CancelOrderQueueManager> _logger;
-        //private readonly ICancelOrderProcessor _cancelOrderProcess;
         private readonly IOrderHLogManager _orderHLogManager;
         private readonly DDAApiSetting _options;
         private bool _isRunning = false;
@@ -34,11 +33,10 @@ namespace DDAApi.CancelOrderQueue
         /// <param name="provider"></param>
         /// <param name="logger"></param>
         public CancelOrderQueueManager(ICancelOrderQueueProvider provider, ILogger<CancelOrderQueueManager> logger,
-                                IOrderHLogManager orderHLogManager, IOptions<DDAApiSetting> options) // ICancelOrderProcessor cancelOrderProccessor,
+                                IOrderHLogManager orderHLogManager, IOptions<DDAApiSetting> options)
         {
             _provider = provider;
             _logger = logger;
-            //_cancelOrderProcess = cancelOrderProccessor;
             _orderHLogManager = orderHLogManager;
             this._options = options.Value;
         }
@@ -101,6 +99,7 @@ namespace DDAApi.CancelOrderQueue
 
                     if (_provider.IsEmpty)
                     {
+                        //Tim: Get all pending orders.
                         var pendingCancelOrders = this._orderHLogManager.GetPendingOrderHLog();
                         if (pendingCancelOrders != null && pendingCancelOrders.Count() > 0)
                         {
@@ -221,7 +220,6 @@ namespace DDAApi.CancelOrderQueue
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "QueueManager Exception");
-                    //_isRunning = false;
                 }
             }
             

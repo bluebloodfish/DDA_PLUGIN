@@ -22,14 +22,12 @@ namespace DDAApi.Security
         private static readonly DateTime _1970 = new DateTime(1970, 01, 01, 0, 0, 0, 0, DateTimeKind.Utc);
         private readonly IMemoryCache _cache;
         private readonly ILogger<AuthenFilter> _logger;
-        private string _appId;
-        private string _secretKey;
-        private IHostingEnvironment _env;
+        private readonly string _appId;
+        private readonly string _secretKey;
+        private readonly IHostingEnvironment _env;
         private readonly DDAApiSetting _options;
 
         public IConfiguration _config { get; }
-
-        private Dictionary<string, string> KeyPairs = new Dictionary<string, string>();
 
         public AuthenFilter(ILogger<AuthenFilter> logger, IMemoryCache memoryCache, IConfiguration  config, IOptions<DDAApiSetting> options, IHostingEnvironment env)
         {
@@ -37,15 +35,10 @@ namespace DDAApi.Security
             this._logger = logger;
             this._config = config;
 
-            //this._appId = this._config["AppId"];
-            //this._secretKey = this._config["SecretKey"];
             this._options = options.Value;
             this._appId = this._options.AppId;
             this._secretKey = this._options.SecretKey;
             this._env = env;
-            //if (string.IsNullOrEmpty(this._appId) || string.IsNullOrEmpty(this._secretKey)) {
-            //    this._logger.LogError("Missing AppId or SecretKey in config file.");
-            //}
             
         }
 
@@ -98,14 +91,15 @@ namespace DDAApi.Security
             }
 
 
-            List<string> list = new List<string>();
-
-            list.Add(requestMethod);
-            list.Add(requestPath);
-            list.Add(AppId);
-            list.Add(this._secretKey);
-            list.Add(TimeStamp);
-            list.Add(Nonce);
+            List<string> list = new List<string>
+            {
+                requestMethod,
+                requestPath,
+                AppId,
+                this._secretKey,
+                TimeStamp,
+                Nonce
+            };
 
 
             list.Sort(StringComparer.Ordinal);

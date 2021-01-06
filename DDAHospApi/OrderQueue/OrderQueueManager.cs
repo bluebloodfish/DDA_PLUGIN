@@ -149,9 +149,6 @@ namespace DDAApi.OrderQueue
                                     }
                            ).GetAwaiter().GetResult();
                         }
-
-                        
-
                         _tt_OpenApi.CallbackToConfirmOrder(result);
 
                         sw.Stop();
@@ -161,7 +158,6 @@ namespace DDAApi.OrderQueue
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "QueueManager Exception");
-                    //_isRunning = false;
                 }
             }
             

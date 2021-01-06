@@ -20,9 +20,8 @@ namespace DDAApi.DataAccess
         }
 
         public List<Category> GetCategories() {
-            int MenuType = 0;
             var MenuTypeSetting = this._config["MenuType"];
-            int.TryParse(MenuTypeSetting, out MenuType);
+            int.TryParse(MenuTypeSetting, out int MenuType);
 
             switch (MenuType) {
                 case 1:

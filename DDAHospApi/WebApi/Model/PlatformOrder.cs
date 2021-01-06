@@ -14,7 +14,7 @@ namespace DDAApi.WebApi.Model
         public P_Customer Customer { get; set; }
         public P_Courier Courier { get; set; }
         public List<P_OrderItem> Items { get; set; }
-        public S_Callback Callback { get; set; }
+        public P_Callback Callback { get; set; }
     }
 
     public class P_Order
