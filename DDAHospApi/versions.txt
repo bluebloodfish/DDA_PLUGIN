@@ -1,0 +1,77 @@
+﻿v3.3.5.4 bug fix
+1. Fix DollarDiscount Gst bug in merge table order.
+
+v3.3.5.3 bug fix
+1. Fix DollarDiscount Gst bug.
+
+v3.3.5.2 bug fix
+1. Fix OrderProcessStatusEnum.TableOrderMergeSuccess bug
+
+v3.3.5.1 bug fix
+1. Cancel order function is not working when publish V3.3.5 to test evn.
+	Remove the local cancelorder http API from database. 
+	CancelOrder Operation fully relies on CancelOrder Queue scan in every 5s.
+	As Http call is removed from SQL Call, the performce is improved.
+
+
+v3.3.5
+1. Additional Order for Occupied Table [Order Merge Function]
+2. Modified TT_OrderH_PaidAmount database table trigger, as One DDA order no could have many TTId, due to introduce order merge function.
+3. Modified HospOrder api controller, CancelOrder method. CancelOrder will accept OrderNo, instead of TTId as parameter.
+
+
+v3.3.4
+1. Fix Migration TT_OrderH_PaidAmount Trigger
+2. Add Retried Limit.
+3. Add Failed status to Order Cancel Operation status.
+4. Add Message and Retried fileds to TT_OrderH_Log
+5. Limit cancel operation retries to 10 times.
+
+
+v3.3.3
+1. Change IsGst to Int. 
+   Gst = 0 or 1 ---> get Gst from platform
+   Gst = -1 --> Get Gst from local pos database.
+v3.3.2
+1. Change AutoPrintBillForUnpaidOrder to AutoPrintBill
+
+v3.3.1
+1. Fix bug: When Delivery Fee = 0, the order.Amount is not calculate properly.
+2. Add TT Table - Log.
+3. Fix bug: Surcharge amount is missing, when re-balance order. As the surcharge rate is 0. Giveup servicecharge way, use surcharge menuitem instead.
+4. 
+
+V3.2
+New function:
+1. DDA version Downward Compatibility 【v8.274 and 8.287】
+	this._ctx.Database.ExecuteSqlCommandAsync("Update OrderH Set Notes = @notes Where OrderNo = @orderNo", pNotes, pOrderNo);
+2. Allow customer is null.
+3. Due Time is null when Pickup_Time=0.
+4. Table order, detect table status before order creating.
+5. Add printer controller
+	"Print_OnlineOrderNo_inNotes": 1,
+    	"Print_OnlineOrderPayStatus_inNotes": 1
+
+6. Add Delivery_Notes to P_Order class
+   Add OrderItem_Id to P_OrderItem class, for cancel order item.
+  
+
+Fix Bug：
+1. Online Order Number Reset to 1 in different date.
+2. DefaultDeliveryItemCode is nullable.
+3. Discount calculate, DiscountKind=2 in orderH table.
+4. For new DDA version, put notes in Order Note filed, need to skip \n(linefeed letter)
+	For old DDA version, put notes in Customer Name, keep \n.
+
+
+Test:
+1. New version DDA test, notes??
+
+Table order, detect table status before order creating
+1. POSCode – 2 unpaid orders
+2. 
+
+V3.0
+1. Add order prcess queue for online orders.
+2. Online order use special format
+3. Order with item code mapping.

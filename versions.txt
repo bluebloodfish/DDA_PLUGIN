@@ -1,0 +1,36 @@
+﻿v3.3
+
+V3.2
+New function:
+1. DDA version Downward Compatibility 【v8.274 and 8.287】
+	this._ctx.Database.ExecuteSqlCommandAsync("Update OrderH Set Notes = @notes Where OrderNo = @orderNo", pNotes, pOrderNo);
+2. Allow customer is null.
+3. Due Time is null when Pickup_Time=0.
+4. Table order, detect table status before order creating.
+5. Add printer controller
+	"Print_OnlineOrderNo_inNotes": 1,
+    	"Print_OnlineOrderPayStatus_inNotes": 1
+
+6. Add Delivery_Notes to P_Order class
+   Add OrderItem_Id to P_OrderItem class, for cancel order item.
+  
+
+Fix Bug：
+1. Online Order Number Reset to 1 in different date.
+2. DefaultDeliveryItemCode is nullable.
+3. Discount calculate, DiscountKind=2 in orderH table.
+4. For new DDA version, put notes in Order Note filed, need to skip \n(linefeed letter)
+	For old DDA version, put notes in Customer Name, keep \n.
+
+
+Test:
+1. New version DDA test, notes??
+
+Table order, detect table status before order creating
+1. POSCode – 2 unpaid orders
+2. 
+
+V3.0
+1. Add order prcess queue for online orders.
+2. Online order use special format
+3. Order with item code mapping.

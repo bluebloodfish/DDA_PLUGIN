@@ -1,0 +1,22 @@
+﻿v3.3
+1. Refactor the SimpleOrder and OrderWithPosCode method in HospOrder. Makes them to call OrderProcess method. Centralize the order process control.
+2. Refactor the OrderProcessResult, centralize manage the Reture Code.
+3. Implement the OrderNoQueueProvider. Fix the concurrency issure for order no.
+	GetOrderNo method is moved to OrderNoQueueProvider. 
+	OrderNoQueueProvider will hold a concurrency queue, and pre-hold 10 order no in sequence.
+	When new order comming, call GetOrderNo, the OrderNoQueue will dequeue a orderno for new order.
+	If the queue is empty, call Refill method to generate another 10 new orderno.
+	If the Dequeued orderno will compared with generate datetime. if generate date is changed. The whole queue will be re-initialized according new date.
+
+
+4. Add Tips field in platformOrder class.
+5. The StartYear will map to A charactor.
+6. Change TT_HttpCallbak table to TT_ApiSetting. And add OnlineOrderStartYear field. 
+		OnlineOrderStartYear is mapping to A character in orderNo.
+		When Api startup, if OnlineOrderStartYear is equal to -1, it means firsttime start, and current year will be write in this field.
+		OrderNo generate range is from A to Z. So system year must be between (startyear) and (startyear+25)
+
+
+
+1. Bug fix: The Order Amount and PaidAmount calculation error.
+2. Bug fix: Cancel an order with tips, the PaidAmount will be equal to tips amount. So change OrderH.PaidAmount trigger.

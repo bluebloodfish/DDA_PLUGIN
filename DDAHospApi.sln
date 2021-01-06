@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1000
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDAApi", "DDAHospApi\DDAApi.csproj", "{0B694024-9263-4316-A254-8806A5235EA6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0B694024-9263-4316-A254-8806A5235EA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B694024-9263-4316-A254-8806A5235EA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B694024-9263-4316-A254-8806A5235EA6}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B694024-9263-4316-A254-8806A5235EA6}.Release|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F95BF256-3802-4FB7-8B8A-8F1899D8C366}
+	EndGlobalSection
+EndGlobal
