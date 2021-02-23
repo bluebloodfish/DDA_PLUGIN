@@ -40,7 +40,8 @@ namespace DDAApi.TTOpenApi
                                 Code = orderResult.Result.Status.ApiCode(),
                                 Message = "OK",
                                 POSOrderNo = orderResult.PosOrderNo,
-                                OrderId = orderResult.TTOrderId
+                                OrderId = orderResult.TTOrderId,
+                                ErrorId = ""
                             };
                             break;
                         case OrderProcessStatusEnum.TableOrderMergeSuccess:
@@ -49,52 +50,58 @@ namespace DDAApi.TTOpenApi
                                 Code = orderResult.Result.Status.ApiCode(),
                                 Message = orderResult.Result.Message,
                                 POSOrderNo = orderResult.PosOrderNo,
-                                OrderId = orderResult.TTOrderId
+                                OrderId = orderResult.TTOrderId,
+                                ErrorId = ""
                             };
                             break;
                         case OrderProcessStatusEnum.PosInnerError:
                             request = new RequestToCallback
                             {
                                 Code = orderResult.Result.Status.ApiCode(),
-                                Message = $"{orderResult.Result.Message} - {orderResult.ErrorId}",
+                                Message = $"{orderResult.Result.Message}",
                                 POSOrderNo = "",
-                                OrderId = orderResult.TTOrderId
+                                OrderId = orderResult.TTOrderId,
+                                ErrorId = orderResult.ErrorId
                             };
                             break;
                         case OrderProcessStatusEnum.TableOccupied: //Table not avaliable
                             request = new RequestToCallback
                             {
                                 Code = orderResult.Result.Status.ApiCode(),
-                                Message = $"{orderResult.Result.Message} - {orderResult.ErrorId}",
+                                Message = $"{orderResult.Result.Message}",
                                 POSOrderNo = "",
-                                OrderId = orderResult.TTOrderId
+                                OrderId = orderResult.TTOrderId,
+                                ErrorId = orderResult.ErrorId
                             };
                             break;
                         case OrderProcessStatusEnum.ItemCodeNotExist: //ItemCode not found
                             request = new RequestToCallback
                             {
                                 Code = orderResult.Result.Status.ApiCode(),
-                                Message = $"{orderResult.Result.Message} - {orderResult.ErrorId}",
+                                Message = $"{orderResult.Result.Message}",
                                 POSOrderNo = "",
-                                OrderId = orderResult.TTOrderId
+                                OrderId = orderResult.TTOrderId,
+                                ErrorId = orderResult.ErrorId
                             };
                             break;
                         case OrderProcessStatusEnum.PrinterServerNoResponce:
                             request = new RequestToCallback
                             {
                                 Code = orderResult.Result.Status.ApiCode(),
-                                Message = $"{orderResult.Result.Message} - {orderResult.ErrorId}",
+                                Message = $"{orderResult.Result.Message}",
                                 POSOrderNo = orderResult.PosOrderNo,
-                                OrderId = orderResult.TTOrderId
+                                OrderId = orderResult.TTOrderId,
+                                ErrorId = orderResult.ErrorId
                             };
                             break;
                         case OrderProcessStatusEnum.FailedToGetOrderNo: //FailedToGetOrderNo
                             request = new RequestToCallback
                             {
                                 Code = orderResult.Result.Status.ApiCode(),
-                                Message = $"{orderResult.Result.Message} - {orderResult.ErrorId}",
+                                Message = $"{orderResult.Result.Message}",
                                 POSOrderNo = "",
-                                OrderId = orderResult.TTOrderId
+                                OrderId = orderResult.TTOrderId,
+                                ErrorId = orderResult.ErrorId
                             };
                             break;
                         default:
@@ -174,8 +181,10 @@ namespace DDAApi.TTOpenApi
         {
             public int Code { get; set; }
             public string Message { get; set; }
+            public string LogMessage { get; set; }
             public string POSOrderNo { get; set; }
-            public int OrderId { get; set; }
+            public long OrderId { get; set; }
+            public string ErrorId { get; set; }
         }
 
 

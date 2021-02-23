@@ -22,7 +22,7 @@ namespace DDAApi.DataAccess
             return this._ctx.SaveChangesAsync();
         }
 
-        public TT_OrderNoMapping GetMapping(string orderNo, int ttId) {
+        public TT_OrderNoMapping GetMapping(string orderNo, long ttId) {
             var mapping = this._ctx.TT_OrderNoMappings.Where(x => x.OrderNo == orderNo && x.TTId == ttId).FirstOrDefault();
             return mapping;
         }

@@ -28,6 +28,7 @@ namespace DDAApi.OrderQueue
         private readonly IHospTableManage _tableManage;
         private readonly IDDAVersionManager _versionManager;
         private readonly IOrderNoQueueProvider _orderNoQueueProvider;
+        private readonly IServiceProvider _serviceProvider;
 
         public OrderProccessor(ILogger<OrderProccessor> logger,
                                 IHospOrderManage orderManage,
@@ -35,7 +36,8 @@ namespace DDAApi.OrderQueue
                                 IHospOrderParser hospOrderParser,
                                 IHospTableManage tableManage,
                                 IDDAVersionManager versionManager, 
-                                IOrderNoQueueProvider orderNoQueueProvider)
+                                IOrderNoQueueProvider orderNoQueueProvider,
+                                IServiceProvider serviceProvider)
         {
             this._logger = logger;
             this._options = options.Value;
@@ -44,6 +46,8 @@ namespace DDAApi.OrderQueue
             this._tableManage = tableManage;
             this._versionManager = versionManager;
             this._orderNoQueueProvider = orderNoQueueProvider;
+            this._serviceProvider = serviceProvider;
+
         }
 
 
@@ -109,17 +113,41 @@ namespace DDAApi.OrderQueue
                 int r = await _orderManage.SaveOrder(hospOrder);
 
                 int version = this._versionManager.GetDDAVersion();
-                if (version >= 8287) {
+                if (version >= 8282) {
                    await _orderManage.UpdateNotesfor8287(hospOrder.OrderHead.Notes, hospOrder.OrderHead.OrderNo);
                 }
 
                 if (r > 0)
                 {
                     try {
-                        if (!string.IsNullOrEmpty(this._options.PrinterServer))
-                        {
-                            await Print_Util.PrintDocket(this._options.PrinterServer, this._options.PrinterServerPort, orderNo, 0);
+
+                        switch (this._options.AutoPrintTableJobList) {
+                            case 0: //Disable auto print
+                                break;
+                            case 1: //Enable auto print
+                                if (!string.IsNullOrEmpty(this._options.PrinterServer))
+                                {
+                                    await Print_Util.PrintDocket(this._options.PrinterServer, this._options.PrinterServerPort, orderNo, 0);
+                                }
+                                break;
+                            case 2://Depends on DDA Settings
+                                using (var scope = _serviceProvider.CreateScope())
+                                {
+                                    var _profileManager = scope.ServiceProvider.GetService<IProfileManager>();
+
+                                    if (!string.IsNullOrEmpty(this._options.PrinterServer))
+                                    {
+                                        if (_profileManager.GetProfile().AutoPrintJobList)
+                                        {
+                                            await Print_Util.PrintDocket(this._options.PrinterServer, this._options.PrinterServerPort, orderNo, 0);
+                                        }
+                                    }
+                                }
+                                break;
+                            default: break;
                         }
+
+                        
 
                         if (this._options.AutoPrintBill == 1) {
                             await Print_Util.PrintDocket(this._options.PrinterServer, this._options.PrinterServerPort, orderNo, 1);
@@ -271,10 +299,51 @@ namespace DDAApi.OrderQueue
                 {
                     try
                     {
-                        if (!string.IsNullOrEmpty(this._options.PrinterServer))
+                        switch (this._options.AutoPrintTableJobList)
                         {
-                            await Print_Util.PrintDocket(this._options.PrinterServer, this._options.PrinterServerPort, orderNo, 0);
+                            case 0: //Disable auto print
+                                break;
+                            case 1: //Enable auto print
+                                if (!string.IsNullOrEmpty(this._options.PrinterServer))
+                                {
+                                    await Print_Util.PrintDocket(this._options.PrinterServer, this._options.PrinterServerPort, orderNo, 0);
+                                }
+                                break;
+                            case 2://Depends on DDA Settings
+                                using (var scope = _serviceProvider.CreateScope())
+                                {
+                                    var _profileManager = scope.ServiceProvider.GetService<IProfileManager>();
+
+                                    if (!string.IsNullOrEmpty(this._options.PrinterServer))
+                                    {
+                                        if (_profileManager.GetProfile().AutoPrintJobList)
+                                        {
+                                            await Print_Util.PrintDocket(this._options.PrinterServer, this._options.PrinterServerPort, orderNo, 0);
+                                        }
+                                    }
+                                }
+                                break;
+                            default: break;
                         }
+
+                        //using (var scope = _serviceProvider.CreateScope()) {
+                        //    var _profileManager = scope.ServiceProvider.GetService<IProfileManager>();
+
+                        //    if (!string.IsNullOrEmpty(this._options.PrinterServer))
+                        //    {
+                        //        var autoPrint = _profileManager.GetProfile().AutoPrintJobList;
+                        //        if (_profileManager.GetProfile().AutoPrintJobList)
+                        //        {
+                        //            await Print_Util.PrintDocket(this._options.PrinterServer, this._options.PrinterServerPort, orderNo, 0);
+                        //        }
+                        //    }
+
+
+                        //}
+
+                        //if (!this._profileManage.GetProfile().ManuallyPrintJobList && !string.IsNullOrEmpty(this._options.PrinterServer))
+                        //{
+                        //}
 
                         if (this._options.AutoPrintBill == 1)
                         {

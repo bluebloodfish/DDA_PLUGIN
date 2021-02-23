@@ -10,7 +10,7 @@ namespace DDAApi.Utility
     {
         public ProcessStatusInfo Result { get; set; }
         public string PosOrderNo { get; set; }
-        public int TTOrderId { get; set; }
+        public long TTOrderId { get; set; }
         public string ErrorId { get; set; }
     }
 

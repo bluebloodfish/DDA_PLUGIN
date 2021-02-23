@@ -28,6 +28,7 @@ namespace DDAApi.DataAccess
         public DbSet<TT_ApiSetting> TT_ApiSettings { get; set; }
         public DbSet<TT_OrderProcess_Log> TT_OrderProcess_Logs { get; set; }
         public DbSet<TT_OrderNoMapping> TT_OrderNoMappings { get; set; }
+        public DbSet<Profile> DDAProfile { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -37,6 +38,7 @@ namespace DDAApi.DataAccess
             builder.Entity<HospOrderItem>().HasKey(i => new { i.OrderNo, i.IDNo, i.ItemCode});
             builder.Entity<HospRecvAcct>().HasKey(i => new { i.OrderNo, i.IDNo });
             builder.Entity<DDAVersion>().HasKey(i => i.Version);
+            builder.Entity<Profile>().HasKey(i => i.CompanyName);
         }
 
        

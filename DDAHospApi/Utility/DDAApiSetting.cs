@@ -69,19 +69,26 @@ namespace DDAApi.Utility
         public int Print_OnlineOrderNo_inNotes { get; set; }
 
         [Range(0, 1)]
-        [DefaultValue(1)]
+        [DefaultValue(0)]
         public int Print_OnlineOrderPayStatus_inNotes { get; set; }
+
+        [Range(0, 2)]
+        [DefaultValue(1)]
+        public int AutoPrintTableJobList { get; set; }
 
 
         [Required]
+        [Range(0, 1)]
         [DefaultValue(0)]
         public int EnableCancelOrderFunction { get; set; }
 
-        [Required]
+        //[Required]
         [Url]
         public string SQLCallbackBaseUrl { get; set; }
 
-        //1 = auto merge order, 0 = auto reject order, 2 = remind and buffer order for manually confirm 
+        //1 = auto merge order, 0 = auto reject order [default], 2 = remind and buffer order for manually confirm 
+        [Range(0, 2)]
+        [DefaultValue(0)]
         public int OrderForOccupiedTable { get; set; }
 
         //[Required]

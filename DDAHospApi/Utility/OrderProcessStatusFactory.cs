@@ -30,7 +30,7 @@ namespace DDAApi.Utility
             return new ProcessStatusInfo
             {
                 Status = OrderProcessStatusEnum.TableOrderMergeSuccess,
-                Message = "OK. Table Order Merged Success",
+                Message = "Table Order Merged Success",
                 InnerMessage = "Ok. Table Order Merged Success"
             };
         }
@@ -66,7 +66,7 @@ namespace DDAApi.Utility
             return new ProcessStatusInfo
             {
                 Status = OrderProcessStatusEnum.PrinterServerNoResponce,
-                Message = "POS order is saved to POS, but printer server has no response"
+                Message = "Order saved to POS, but printer server has no response"
             };
         }
 

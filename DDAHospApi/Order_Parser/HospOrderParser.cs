@@ -571,7 +571,7 @@ namespace DDAApi.Order_Parser
             orderHead.VIPNo = 999999;
 
 
-            if (version >= 8287)
+            if (version >= 8282)
             {
                 orderHead.CustomerName = GetCustomerName(pOrder);
                 orderHead.Notes = GetOrderNotes(pOrder, true);
@@ -646,7 +646,7 @@ namespace DDAApi.Order_Parser
                 VIPNo = 999999
             };
 
-            if (version >= 8287)
+            if (version >= 8282)
             {
                 orderHead.CustomerName = GetCustomerName(pOrder);
                 orderHead.Notes = GetOrderNotes(pOrder, true);

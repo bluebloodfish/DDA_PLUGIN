@@ -10,6 +10,6 @@ namespace DDAApi.DataAccess
     {
         Task<int> AddOrderNoMapping(TT_OrderNoMapping mapping);
 
-        TT_OrderNoMapping GetMapping(string orderNo, int ttId);
+        TT_OrderNoMapping GetMapping(string orderNo, long ttId);
     }
 }

@@ -1,4 +1,20 @@
-﻿v3.3.5.4 bug fix
+﻿v3.3.5.6
+1. Add LogMessage and ErrorId fields to RequestToCallback class in TT_OpenApi class.
+2. Remove error_id info from Message field when TT_OpenApi request to TT.
+
+3. Add DDAProfileManager in DBContext. Use DDAProfieManager to access DDA profile settings.
+4. Add HowToPrintTableJobList switch to appsettings.
+	0 --> Auto Print JobList
+	1 --> Manual Print JobList
+	2 --> Depends on DDA settings.
+
+
+v3.3.5.5
+1. DDA version compatible to 8282, 8290
+2. Change TTOrderId type from Int to Long
+
+
+v3.3.5.4 bug fix
 1. Fix DollarDiscount Gst bug in merge table order.
 
 v3.3.5.3 bug fix

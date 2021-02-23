@@ -114,8 +114,6 @@ namespace DDAApi.OrderQueue
                         //Tim: Send Order Here
                         OrderProcessResult result = new OrderProcessResult();
 
-                        
-
                         if (order.Order_Type == 0) {
                             result = this._orderProcess.SimpleOrder(order).GetAwaiter().GetResult();
                             //_tt_OpenApi.CallbackToConfirmOrder(result.PosOrderNo, order.Order.TT_Order_Id);

@@ -66,6 +66,7 @@ namespace DDAApi
             services.AddScoped<IHospOrderManage, HospOrderManage>();
             services.AddScoped<IHospTableManage, HospTableManage>();
             services.AddScoped<IDDAVersionManager, DDAVersionManager>();
+            services.AddScoped<IProfileManager, ProfileManager>();
             services.AddScoped<IOrderHLogManager, OrderHLogManager>();
             services.AddScoped<ISqAppSettings, SqlAppSettings>();
 

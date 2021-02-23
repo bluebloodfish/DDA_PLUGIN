@@ -21,7 +21,7 @@ namespace DDAApi.WebApi.Model
     {
         public string Order_No { get; set; } //Order number from Online Ordering System [NOT NULL]
         public string Order_No_Store { get; set; } //For DDA
-        public int TT_Order_Id { get; set; }
+        public long TT_Order_Id { get; set; }
         public long Order_DateTime { get; set; }
         public long Pickup_Time { get; set; }
         public int Discount { get; set; }

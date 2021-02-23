@@ -82,7 +82,7 @@ namespace DDAApi.WebApi
         [HttpGet("GetVersion")]
         public IActionResult GetVersion()
         {
-            return Ok(new { code = 0, data = new { Version = "3.3.5.3" } });
+            return Ok(new { code = 0, data = new { Version = "3.3.5.6" } });
         }
 
 
