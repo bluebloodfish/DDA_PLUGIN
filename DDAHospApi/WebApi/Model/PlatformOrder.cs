@@ -185,6 +185,6 @@ namespace DDAApi.WebApi.Model
     {
         public string Url { get; set; }
         public string Reference_Id { get; set; }
-        public int Status { get; set; }
+        public string Status { get; set; }
     }
 }

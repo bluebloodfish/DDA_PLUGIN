@@ -1,4 +1,10 @@
-﻿v3.3.5.6
+﻿v3.3.6
+1. Add split line function --> ["----" itemcode]
+
+Bug:
+1. Fix Gst calculation Bug
+
+v3.3.5.6
 1. Add LogMessage and ErrorId fields to RequestToCallback class in TT_OpenApi class.
 2. Remove error_id info from Message field when TT_OpenApi request to TT.
 

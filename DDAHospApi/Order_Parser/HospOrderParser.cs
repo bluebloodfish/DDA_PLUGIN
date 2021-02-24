@@ -3,6 +3,7 @@ using DDAApi.HospModel;
 using DDAApi.Utility;
 using DDAApi.WebApi.Model;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -17,20 +18,23 @@ namespace DDAApi.Order_Parser
         private readonly IHospOrderManage _orderManage;
         private readonly IDDAVersionManager _versionManager;
         private readonly IConfiguration _config;
-        private readonly IHospMenuManager _menuManager;
+        //private readonly IHospMenuManager _menuManager;
         private readonly DDAApiSetting _options;
+        private readonly IServiceProvider _serviceProvider;
 
         public HospOrderParser(IHospOrderManage orderManage,  
-                                IHospMenuManager menuManager,
+                                //IHospMenuManager menuManager,
                                 IDDAVersionManager versionManager,
                                 IConfiguration config,
-                                IOptions<DDAApiSetting> opitons)
+                                IOptions<DDAApiSetting> opitons,
+                                IServiceProvider serviceProvider)
         {
             this._orderManage = orderManage;
             this._versionManager = versionManager;
             this._config = config;
-            this._menuManager = menuManager;
+            //this._menuManager = menuManager;
             this._options = opitons.Value;
+            this._serviceProvider = serviceProvider;
         }
 
         /// <summary>
@@ -224,61 +228,102 @@ namespace DDAApi.Order_Parser
             {
                 foreach (var pItem in pOrder.Items)
                 {
-                    if (!DoesMenuItemExist(pItem.Item_Code)) {
-                        return new OrderParserResult {
-                            Code = -1,
-                            Message = pItem.Item_Code,
-                            Order = new HospOrder()
-                        };
-                    }
-
-                    var hItem = InitHospOrderItem(orderHead, pItem);
-                    hItem.IDNo = idNo++;
-                    hItem.PriceSelect = (short)pItem.Price_Level;
-                    hItem.ItemCode = pItem.Item_Code;
-
-                    if (hItem.TaxRate > 0)
+                    if (!DoesMenuItemExist(pItem.Item_Code))
                     {
-                        orderGstAmount += hItem.Qty * hItem.Price / (1 + hItem.TaxRate);
-                    }
-
-                    if (!string.IsNullOrEmpty(pItem.Customer_Notes)) {
-                        hItem.SpecialOrder = FullWidthString.Get(pItem.Customer_Notes, false);
-                    }
-                    
-
-                    hospOrderItems.Add(hItem);
-
-                    if (pItem.Instructions != null && pItem.Instructions.Count > 0) {
-                        foreach (var pInstruct in pItem.Instructions) {
-
-                            if (!DoesMenuItemExist(pInstruct.Item_Code))
+                        if (pItem.Item_Code == "----")
+                        {
+                            var holdItem = new HospOrderItem
                             {
-                                return new OrderParserResult
+                                Condition = 0,
+                                PaidQty = 0,
+                                PriceSelect = 0,
+                                Seat = 0,
+                                ItemCode = "----",
+                                Qty = 0,
+                                Price = 0,
+                                Discount = 0,
+                                TaxRate = 0,
+                                IDNo = idNo++,
+                                PrintFlag = false,
+                                SentToKitchen = false,
+                                CheckListPrinted = false,
+                                VoidFlag = false,
+                                OrderOperator = orderHead.OpName,
+                                OriginalPrice = 0,
+                                OriginalQty = 0,
+                                RedeemItem = false,
+                                ManuallyEnterWeight = false
+                            };
+
+                            hospOrderItems.Add(holdItem);
+                        }
+                        else
+                        {
+                            return new OrderParserResult
+                            {
+                                Code = -1,
+                                Message = pItem.Item_Code,
+                                Order = new HospOrder()
+                            };
+                        }
+                    }
+                    else
+                    {
+                        var hItem = InitHospOrderItem(orderHead, pItem);
+                        hItem.IDNo = idNo++;
+                        hItem.PriceSelect = (short)pItem.Price_Level;
+                        hItem.ItemCode = pItem.Item_Code;
+
+                        if (hItem.TaxRate > 0)
+                        {
+                            orderGstAmount += hItem.Qty * hItem.Price / (1 + hItem.TaxRate);
+                        }
+
+                        if (!string.IsNullOrEmpty(pItem.Customer_Notes))
+                        {
+                            hItem.SpecialOrder = FullWidthString.Get(pItem.Customer_Notes, false);
+                        }
+
+
+                        hospOrderItems.Add(hItem);
+
+                        if (pItem.Instructions != null && pItem.Instructions.Count > 0)
+                        {
+                            foreach (var pInstruct in pItem.Instructions)
+                            {
+
+                                if (!DoesMenuItemExist(pInstruct.Item_Code))
                                 {
-                                    Code = -1,
-                                    Message = pInstruct.Item_Code,
-                                    Order = new HospOrder()
-                                };
+                                    return new OrderParserResult
+                                    {
+                                        Code = -1,
+                                        Message = pInstruct.Item_Code,
+                                        Order = new HospOrder()
+                                    };
+                                }
+
+                                var hInstruct = InitHospOrderItem(orderHead, pInstruct);
+                                hInstruct.IDNo = idNo++;
+                                hInstruct.PriceSelect = (short)pInstruct.Price_Level_Store;
+                                hInstruct.ItemCode = pInstruct.Item_Code;
+
+                                if (hInstruct.TaxRate > 0)
+                                {
+                                    orderGstAmount += hInstruct.Qty * hInstruct.Price / (1 + hInstruct.TaxRate);
+                                }
+
+                                hospOrderItems.Add(hInstruct);
                             }
 
-                            var hInstruct = InitHospOrderItem(orderHead, pInstruct);
-                            hInstruct.IDNo = idNo++;
-                            hInstruct.PriceSelect = (short)pInstruct.Price_Level_Store;
-                            hInstruct.ItemCode = pInstruct.Item_Code;
-
-                            if (hInstruct.TaxRate > 0)
-                            {
-                                orderGstAmount += hInstruct.Qty * hInstruct.Price / (1 + hInstruct.TaxRate);
-                            }
-
-                            hospOrderItems.Add(hInstruct);
                         }
 
                     }
 
+                    
+
                 }
             }
+            orderHead.GST = orderGstAmount;
 
             var result = ConvertDelivery(orderHead, pOrder);
             if (result == 1) {
@@ -382,7 +427,7 @@ namespace DDAApi.Order_Parser
             var orgDDAOrderItems = orgHospOrder.OrderItems;
             Int16 idNo = orgDDAOrderItems.Select(x => x.IDNo).Max(x => x);
             idNo++;
-            double orderGstAmount = orderHead.GST;
+            //double orderGstAmount = orderHead.GST;
 
 
             if (pOrder.Items != null && pOrder.Items.Count > 0)
@@ -391,71 +436,104 @@ namespace DDAApi.Order_Parser
                 {
                     if (!DoesMenuItemExist(pItem.Item_Code))
                     {
-                        return new OrderParserResult
+                        if (pItem.Item_Code == "----")
                         {
-                            Code = -1,
-                            Message = pItem.Item_Code,
-                            Order = new HospOrder()
-                        };
-                    }
+                            var holdItem = new HospOrderItem
+                            {
+                                OrderNo = orderHead.OrderNo,
+                                Condition = 0,
+                                PaidQty = 0,
+                                PriceSelect = 0,
+                                Seat = 0,
+                                ItemCode = "----",
+                                Qty = 0,
+                                Price = 0,
+                                Discount = 0,
+                                TaxRate = 0,
+                                IDNo = idNo++,
+                                PrintFlag = false,
+                                SentToKitchen = false,
+                                CheckListPrinted = false,
+                                VoidFlag = false,
+                                OrderOperator = orderHead.OpName,
+                                OriginalPrice = 0,
+                                OriginalQty = 0,
+                                RedeemItem = false,
+                                ManuallyEnterWeight = false
+                            };
 
-                    var hItem = InitHospOrderItem(orderHead, pItem);
-                    hItem.OrderNo = orderHead.OrderNo;
-                    hItem.IDNo = idNo++;
-                    hItem.PriceSelect = (short)pItem.Price_Level;
-                    hItem.ItemCode = pItem.Item_Code;
-
-                    if (hItem.TaxRate > 0)
-                    {
-                        orderGstAmount += hItem.Qty * hItem.Price / (1 + hItem.TaxRate);
-                    }
-
-                    if (!string.IsNullOrEmpty(pItem.Customer_Notes))
-                    {
-                        hItem.SpecialOrder = $"Merge from {pOrder.Platform_Name} - {FullWidthString.Get(pItem.Customer_Notes, false)}";
-                    }
-                    else
-                    {
-                        hItem.SpecialOrder = $"Merge from {pOrder.Platform_Name}";
-                    }
-
-
-                    additionalDDAOrderItems.Add(hItem);
-
-                    if (pItem.Instructions != null && pItem.Instructions.Count > 0)
-                    {
-                        foreach (var pInstruct in pItem.Instructions)
+                            additionalDDAOrderItems.Add(holdItem);
+                        }
+                        else
                         {
-
-                            if (!DoesMenuItemExist(pInstruct.Item_Code))
+                            return new OrderParserResult
                             {
-                                return new OrderParserResult
-                                {
-                                    Code = -1,
-                                    Message = pInstruct.Item_Code,
-                                    Order = new HospOrder()
-                                };
-                            }
-
-                            var hInstruct = InitHospOrderItem(orderHead, pInstruct);
-                            hInstruct.OrderNo = orderHead.OrderNo;
-                            hInstruct.IDNo = idNo++;
-                            hInstruct.PriceSelect = (short)pInstruct.Price_Level_Store;
-                            hInstruct.ItemCode = pInstruct.Item_Code;
-
-                            if (hInstruct.TaxRate > 0)
-                            {
-                                orderGstAmount += hInstruct.Qty * hInstruct.Price / (1 + hInstruct.TaxRate);
-                            }
-
-                            additionalDDAOrderItems.Add(hInstruct);
+                                Code = -1,
+                                Message = pItem.Item_Code,
+                                Order = new HospOrder()
+                            };
                         }
 
+                    }
+                    else {
+                        var hItem = InitHospOrderItem(orderHead, pItem);
+                        hItem.OrderNo = orderHead.OrderNo;
+                        hItem.IDNo = idNo++;
+                        hItem.PriceSelect = (short)pItem.Price_Level;
+                        hItem.ItemCode = pItem.Item_Code;
+
+                        if (hItem.TaxRate > 0)
+                        {
+                            orderHead.GST += hItem.Qty * hItem.Price / (1 + hItem.TaxRate);
+                        }
+
+                        if (!string.IsNullOrEmpty(pItem.Customer_Notes))
+                        {
+                            hItem.SpecialOrder = $"Merge from {pOrder.Platform_Name} - {FullWidthString.Get(pItem.Customer_Notes, false)}";
+                        }
+                        else
+                        {
+                            hItem.SpecialOrder = $"Merge from {pOrder.Platform_Name}";
+                        }
+
+
+                        additionalDDAOrderItems.Add(hItem);
+
+                        if (pItem.Instructions != null && pItem.Instructions.Count > 0)
+                        {
+                            foreach (var pInstruct in pItem.Instructions)
+                            {
+
+                                if (!DoesMenuItemExist(pInstruct.Item_Code))
+                                {
+                                    return new OrderParserResult
+                                    {
+                                        Code = -1,
+                                        Message = pInstruct.Item_Code,
+                                        Order = new HospOrder()
+                                    };
+                                }
+
+                                var hInstruct = InitHospOrderItem(orderHead, pInstruct);
+                                hInstruct.OrderNo = orderHead.OrderNo;
+                                hInstruct.IDNo = idNo++;
+                                hInstruct.PriceSelect = (short)pInstruct.Price_Level_Store;
+                                hInstruct.ItemCode = pInstruct.Item_Code;
+
+                                if (hInstruct.TaxRate > 0)
+                                {
+                                    orderHead.GST += hInstruct.Qty * hInstruct.Price / (1 + hInstruct.TaxRate);
+                                }
+
+                                additionalDDAOrderItems.Add(hInstruct);
+                            }
+
+                        }
                     }
 
                 }
 
-                orderHead.GST = orderGstAmount + pOrder.Order.GetSurchargeAmount() / 11.0;
+                //orderHead.GST = orderGstAmount + pOrder.Order.GetSurchargeAmount() / 11.0;
             }
 
             var result = ConvertDelivery(orderHead, pOrder);
@@ -558,6 +636,7 @@ namespace DDAApi.Order_Parser
             int version = this._versionManager.GetDDAVersion();
 
             orderHead.OpName = pOrder.Platform_Name;
+            
 
             var discount = pOrder.Order.GetDiscount();
             if (discount > 0)
@@ -695,7 +774,6 @@ namespace DDAApi.Order_Parser
         {
             var hItem = new HospOrderItem
             {
-                //OrderNo = orderHead.OrderNo,
                 PaidQty = 0.0,
                 OriginalQty = 0.0,
                 OriginalPrice = pItem.GetPrice(),
@@ -704,7 +782,6 @@ namespace DDAApi.Order_Parser
                 PrintFlag = false,
                 VoidFlag = false,
                 OrderOperator = orderHead.OpName,
-                //TaxRate = pItem.IsGst() ? 10.0 : 0.0,
                 Condition = 0,
             };
 
@@ -720,10 +797,16 @@ namespace DDAApi.Order_Parser
             }
             else if (isGst == -1)
             {
-                var item = this._menuManager.GetMenuItems()
+                using (var scope = this._serviceProvider.CreateScope())
+                {
+                    var menuManager = scope.ServiceProvider.GetService<IHospMenuManager>();
+
+                    var item = menuManager.GetMenuItems()
                                 .Where(x => x.ItemCode.ToUpper() == pItem.Item_Code.ToUpper())
                                 .FirstOrDefault();
-                hItem.TaxRate = item.TaxRate;
+                    hItem.TaxRate = item.TaxRate;
+                }
+                
             }
 
             return hItem;
@@ -760,9 +843,15 @@ namespace DDAApi.Order_Parser
             }
             else if (pInstruct.IsGst() == -1)
             {
-                hItem.TaxRate = this._menuManager.GetMenuItems()
+                using (var scope = this._serviceProvider.CreateScope())
+                {
+                    var menuManager = scope.ServiceProvider.GetService<IHospMenuManager>();
+
+                    var item = menuManager.GetMenuItems()
                                 .Where(x => x.ItemCode.ToUpper() == pInstruct.Item_Code.ToUpper())
-                                .FirstOrDefault().TaxRate;
+                                .FirstOrDefault();
+                    hItem.TaxRate = item.TaxRate;
+                }
             }
 
             return hItem;
@@ -940,17 +1029,22 @@ namespace DDAApi.Order_Parser
         /// <returns></returns>
         private bool DoesMenuItemExist(string itemCode)
         {
-            var item = this._menuManager.GetMenuItems()
+            using (var scope = this._serviceProvider.CreateScope())
+            {
+                var menuManager = scope.ServiceProvider.GetService<IHospMenuManager>();
+
+                var item = menuManager.GetMenuItems()
                             .Where(x => x.ItemCode.ToUpper() == itemCode.ToUpper())
                             .FirstOrDefault();
 
-            if (item == null)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
+                if (item == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
             }
         }
 
