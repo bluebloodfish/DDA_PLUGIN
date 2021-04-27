@@ -59,6 +59,8 @@ namespace DDAApi.HospModel
 
         public bool Instruction { get; set; }
 
+        public bool Multiple { get; set; }
 
+        public bool Active { get; set; }
     }
 }

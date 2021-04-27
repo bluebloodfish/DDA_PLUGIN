@@ -289,6 +289,12 @@ namespace DDAApi.OrderQueue
                     }
 
                     r = await _orderManage.SaveOrder(hospOrder);
+
+                    int version = this._versionManager.GetDDAVersion();
+                    if (version >= 8282)
+                    {
+                        await _orderManage.UpdateNotesfor8287(hospOrder.OrderHead.Notes, hospOrder.OrderHead.OrderNo);
+                    }
                 }
                 else {
                     orderNo = hospOrder.OrderHead.OrderNo;

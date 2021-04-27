@@ -121,24 +121,33 @@ namespace DDAApi.Security
         private bool IsReplayRequest(string nonce, string requestTimeStamp)
 
         {
+            return false;
+
             //if (this._env.IsProduction())
             //{
-            //    if (_cache.TryGetValue(nonce, out object _)) return true;
+            //    if (_cache.TryGetValue(nonce, out object _)) {
+            //        this._logger.LogError("IsReplayRequest: Duplicate Nonce.");
+            //        return true;
+            //    }
             //    TimeSpan currentTs = DateTime.UtcNow - _1970;
             //    var serverTotalSeconds = Convert.ToUInt64(currentTs.TotalSeconds);
             //    var requestTotalSeconds = Convert.ToUInt64(requestTimeStamp);
-            //    this._logger.LogInformation($"requestTimeStamp: {requestTimeStamp}  ----- Now: {serverTotalSeconds}");
 
-            //    if (serverTotalSeconds - requestTotalSeconds > _Max_Age_In_Seconds) return true;
+            //    if ((serverTotalSeconds - requestTotalSeconds) > _Max_Age_In_Seconds)
+            //    {
+            //        this._logger.LogError("IsReplayRequest: Request older than 5mins.");
+            //        return true;
+            //    }
 
             //    _cache.Set(nonce, requestTimeStamp, DateTimeOffset.UtcNow.AddSeconds(_Max_Age_In_Seconds));
             //    return false;
             //}
-            //else {
+            //else
+            //{
+            //    this._logger.LogError("This is not Production Env");
             //    return false;
             //}
 
-            return false;
         }
 
 

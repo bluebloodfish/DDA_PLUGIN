@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -66,6 +67,7 @@ namespace DDAApi.Security
             request.Headers.Add("Timestamp", requestTimeStamp);
             request.Headers.Add("Sign", signature);
 
+            //this._logger.LogError($"AppId: {AppId};\n Nonce: {nonce};\n Timestamp: {requestTimeStamp};\n Sign: {signature};");
 
             response = await base.SendAsync(request, cancellationToken);
             return response;

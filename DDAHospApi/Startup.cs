@@ -46,7 +46,7 @@ namespace DDAApi
             });
 
             services.AddDbContext<AppDbContext>(
-                options => options.UseSqlServer(Configuration["DDADB"]));
+                options => options.UseSqlServer(Configuration["DDADB"], builder => builder.UseRowNumberForPaging()));
             
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)

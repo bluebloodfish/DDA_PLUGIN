@@ -1,5 +1,6 @@
 ﻿using DDAApi.DataAccess;
 using DDAApi.HospModel;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -19,21 +20,61 @@ namespace DDAApi.DataAccess
             this._config = config;
         }
 
-        public List<Category> GetCategories() {
-            var MenuTypeSetting = this._config["MenuType"];
-            int.TryParse(MenuTypeSetting, out int MenuType);
+        //public List<Category> GetCategories() {
+        //    var MenuTypeSetting = this._config["MenuType"];
+        //    int.TryParse(MenuTypeSetting, out int MenuType);
 
-            switch (MenuType) {
-                case 1:
-                    return this._ctx.Catregories.Where(x => x.ShowOnMainMenu == true).ToList();
-                case 2:
-                    return this._ctx.Catregories.Where(x => x.ShowOnPOSMenu == true).ToList();
-                case 3:
-                    return this._ctx.Catregories.Where(x => x.ShowOnPhoneOrderMenu == true).ToList();
-                default:
-                    return this._ctx.Catregories.Where(x => x.ShowOnMainMenu == true).ToList();
-            }
+        //    switch (MenuType) {
+        //        case 1:
+        //            return this._ctx.Catregories.Where(x => x.ShowOnMainMenu == true).ToList();
+        //        case 2:
+        //            return this._ctx.Catregories.Where(x => x.ShowOnPOSMenu == true).ToList();
+        //        case 3:
+        //            return this._ctx.Catregories.Where(x => x.ShowOnPhoneOrderMenu == true).ToList();
+        //        default:
+        //            return this._ctx.Catregories.Where(x => x.ShowOnMainMenu == true).ToList();
+        //    }
+        //}
+
+
+        public IEnumerable<TResult> GetCategories<TResult>(Func<Category, TResult> selector)
+        {
+            return this._ctx.Catregories.Select(selector);
         }
+
+        //public CategoryPaginationResult GetCategories(int Page_Index)
+        //{
+        //    this._ctx.Catregories.Select();
+
+        //}
+
+        public List<Category> GetCategories()
+        {
+            return this._ctx.Catregories.ToList();
+        }
+
+        public IEnumerable<TResult> GetCategories<TResult>(Func<Category, TResult> selector, int Page_Index)
+        {
+            return this._ctx.Catregories.OrderBy(x => x.Code).Skip(50 * Page_Index).Take(50)                
+              .Select(selector);
+        }
+
+        public int GetCategoryTotalRows()
+        {
+            return this._ctx.Catregories.Count();
+        }
+
+        public IEnumerable<TResult> GetMenuItems<TResult>(Func<MenuItem, TResult> selector, int Page_Index)
+        {
+            return this._ctx.MenuItems.OrderBy(x => x.ItemCode).Skip(50 * Page_Index).Take(50)
+              .Select(selector);
+        }
+
+        public int GetMenuItemTotalRows()
+        {
+            return this._ctx.MenuItems.Count();
+        }
+
 
         public List<MenuItem> GetMenuItems()
         {
@@ -66,5 +107,26 @@ namespace DDAApi.DataAccess
             }
         }
 
+
+
+        public List<MenuItem> GetMenuItemsForMT(int Page_Index)
+        {
+            var menuItems = this._ctx.MenuItems.FromSql($"sp_GetMenuItemForMt {Page_Index}").ToList();
+            return menuItems;
+
+        }
+
+        public List<Category> GetCategoryForMT(int Page_Index)
+        {
+            var Catregories = this._ctx.Catregories.FromSql($"sp_GetCategoryForMt {Page_Index}").ToList();
+            return Catregories;
+
+        }
+
+    }
+
+    public class CategoryPaginationResult {
+        public int Total_Row { get; set; }
+        public List<Category>  Categories { get; set; }
     }
 }

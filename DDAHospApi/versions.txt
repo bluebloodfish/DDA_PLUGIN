@@ -1,4 +1,22 @@
-﻿v3.3.6
+﻿Console: v3.3.10
+OrderApi: 2.0.3
+1. Add Console Controller to maintain MainApiVersion
+2. Fix Order_Notes Bug in OrderProcessor.
+3. Change OrderApi version to 2.0.3
+
+v3.3.9
+1. MenuForMTController: fix getmenuitem price rounding bug
+
+v3.3.8
+1. EF Core build-in skip, take function has bug on SQL2008. To fix that, change to store procedure solution.
+
+
+v3.3.7
+1. Enable replay detect.
+2. Add Version display to HomePage
+
+
+v3.3.6
 1. Add split line function --> ["----" itemcode]
 
 Bug:
