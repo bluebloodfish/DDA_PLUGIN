@@ -137,7 +137,7 @@ namespace DDAApi.Order_Parser
                     Condition = 0,
                 };
                 hospOrderItems.Add(deliveryItem);
-                orderHead.GST = pOrder.Order.GetDeliveryFee() / 11;
+                orderHead.GST += pOrder.Order.GetDeliveryFee() / 11;
             }
 
             if (pOrder.Order.Surcharge > 0)
@@ -325,29 +325,39 @@ namespace DDAApi.Order_Parser
             }
             orderHead.GST = orderGstAmount;
 
-            var result = ConvertDelivery(orderHead, pOrder);
-            if (result == 1) {
 
-                var deliveryItem = new HospOrderItem
-                {
-                    PaidQty = 0.0,
-                    OriginalQty = 0.0,
-                    OriginalPrice = pOrder.Order.GetDeliveryFee(),
-                    Qty = 1.0,
-                    Price = pOrder.Order.GetDeliveryFee(),
-                    PrintFlag = false,
-                    VoidFlag = false,
-                    OrderOperator = orderHead.OpName,
-                    PriceSelect = 0,
-                    IDNo = idNo++,
-                    ItemCode = this._options.DeliveryItemCode,
-                    TaxRate = 10.0,
-                    SpecialOrder = "",
-                    Condition = 0,
-                };
+            DelieryOrderInfo.Convert(pOrder, this._options.DeliveryItemCode);
+            DelieryOrderInfo.PasteToHead(orderHead);
+            if (DelieryOrderInfo.item != null) {
+                var deliveryItem = DelieryOrderInfo.GetDeliveryItem(orderHead.OpName, idNo++);
                 hospOrderItems.Add(deliveryItem);
                 orderHead.GST += pOrder.Order.GetDeliveryFee() / 11;
             }
+
+
+            //var result = ConvertDelivery(orderHead, pOrder);
+            //if (result == 1) {
+
+            //    var deliveryItem = new HospOrderItem
+            //    {
+            //        PaidQty = 0.0,
+            //        OriginalQty = 0.0,
+            //        OriginalPrice = pOrder.Order.GetDeliveryFee(),
+            //        Qty = 1.0,
+            //        Price = pOrder.Order.GetDeliveryFee(),
+            //        PrintFlag = false,
+            //        VoidFlag = false,
+            //        OrderOperator = orderHead.OpName,
+            //        PriceSelect = 0,
+            //        IDNo = idNo++,
+            //        ItemCode = this._options.DeliveryItemCode,
+            //        TaxRate = 10.0,
+            //        SpecialOrder = "",
+            //        Condition = 0,
+            //    };
+            //    hospOrderItems.Add(deliveryItem);
+            //    orderHead.GST += pOrder.Order.GetDeliveryFee() / 11;
+            //}
 
             if (pOrder.Order.Surcharge > 0) {
                 var surchargeItem = new HospOrderItem
@@ -536,47 +546,56 @@ namespace DDAApi.Order_Parser
                 //orderHead.GST = orderGstAmount + pOrder.Order.GetSurchargeAmount() / 11.0;
             }
 
-            var result = ConvertDelivery(orderHead, pOrder);
-
-            double amount = 0;
-            if (pOrder.Order.Delivery_Fee > 0)
+            DelieryOrderInfo.Convert(pOrder, this._options.DeliveryItemCode);
+            DelieryOrderInfo.MergeToHead(orderHead);
+            if (DelieryOrderInfo.item != null)
             {
-                if (string.IsNullOrEmpty(this._options.DeliveryItemCode))
-                {
-                    amount = pOrder.Order.GetTotalAmount() - pOrder.Order.GetDeliveryFee() - pOrder.Order.GetTipsAmount();
-                }
-                else
-                {
-                    amount = pOrder.Order.GetTotalAmount() - pOrder.Order.GetTipsAmount();
-                    var deliveryItem = new HospOrderItem
-                    {
-                        OrderNo = orderHead.OrderNo,
-                        PaidQty = 0.0,
-                        OriginalQty = 0.0,
-                        OriginalPrice = pOrder.Order.GetDeliveryFee(),
-                        Qty = 1.0,
-                        Price = pOrder.Order.GetDeliveryFee(),
-                        PrintFlag = false,
-                        VoidFlag = false,
-                        OrderOperator = orderHead.OpName,
-                        PriceSelect = 0,
-                        IDNo = idNo++,
-                        ItemCode = this._options.DeliveryItemCode,
-                        TaxRate = 10.0,
-                        SpecialOrder = "",
-                        Condition = 0,
-                    };
-                    additionalDDAOrderItems.Add(deliveryItem);
-                    orderHead.GST += pOrder.Order.GetDeliveryFee() / 11;
-                }
-
-            }
-            else
-            {
-                amount = pOrder.Order.GetTotalAmount() - pOrder.Order.GetTipsAmount();
+                var deliveryItem = DelieryOrderInfo.GetDeliveryItem(orderHead.OpName, idNo++);
+                additionalDDAOrderItems.Add(deliveryItem);
+                orderHead.GST += pOrder.Order.GetDeliveryFee() / 11;
             }
 
-            orderHead.Amount = amount + orderHead.Amount;
+            //var result = ConvertDelivery(orderHead, pOrder);
+
+            //double amount = 0;
+            //if (pOrder.Order.Delivery_Fee > 0)
+            //{
+            //    if (string.IsNullOrEmpty(this._options.DeliveryItemCode))
+            //    {
+            //        amount = pOrder.Order.GetTotalAmount() - pOrder.Order.GetDeliveryFee() - pOrder.Order.GetTipsAmount();
+            //    }
+            //    else
+            //    {
+            //        amount = pOrder.Order.GetTotalAmount() - pOrder.Order.GetTipsAmount();
+            //        var deliveryItem = new HospOrderItem
+            //        {
+            //            OrderNo = orderHead.OrderNo,
+            //            PaidQty = 0.0,
+            //            OriginalQty = 0.0,
+            //            OriginalPrice = pOrder.Order.GetDeliveryFee(),
+            //            Qty = 1.0,
+            //            Price = pOrder.Order.GetDeliveryFee(),
+            //            PrintFlag = false,
+            //            VoidFlag = false,
+            //            OrderOperator = orderHead.OpName,
+            //            PriceSelect = 0,
+            //            IDNo = idNo++,
+            //            ItemCode = this._options.DeliveryItemCode,
+            //            TaxRate = 10.0,
+            //            SpecialOrder = "",
+            //            Condition = 0,
+            //        };
+            //        additionalDDAOrderItems.Add(deliveryItem);
+            //        orderHead.GST += pOrder.Order.GetDeliveryFee() / 11;
+            //    }
+
+            //}
+            //else
+            //{
+            //    amount = pOrder.Order.GetTotalAmount() - pOrder.Order.GetTipsAmount();
+            //}
+
+            //orderHead.Amount = amount + orderHead.Amount;
 
 
             if (pOrder.Order.Surcharge > 0)
@@ -929,9 +948,174 @@ namespace DDAApi.Order_Parser
                 orderHead.Amount = pOrder.Order.GetTotalAmount() - pOrder.Order.GetTipsAmount();
                 return 0;
             }
+        }
+
+
+
+
+        private int ConvertDelivery(PlatformOrder pOrder)
+        {
+            var orderHead = new HospOrderHead();
+            switch (pOrder.Order.Delivery_Type)
+            {
+                case 1: //TIM: delivery order
+                        //TIM: If DeliveryCode is not defined, delivery fee is charged by Platform.
+                        //If DeliveryCode is defined, store do self-delivery, delivery fee is charged by store.
+
+                    orderHead.Delivery = true;
+                    orderHead.BillKind = 2;
+                    break;
+
+                case 2: //TIM: Dine-In order
+                    orderHead.Delivery = false;
+                    orderHead.BillKind = 0;
+                    break;
+                case 3: //TIM: Self-pickup order
+                    orderHead.Delivery = false;
+                    orderHead.BillKind = 2;
+                    break;
+                default:
+                    break;
+            }
+
+            if (pOrder.Order.Delivery_Fee > 0)
+            {
+                if (string.IsNullOrEmpty(this._options.DeliveryItemCode))
+                {
+                    orderHead.Amount = pOrder.Order.GetTotalAmount() - pOrder.Order.GetDeliveryFee() - pOrder.Order.GetTipsAmount();
+                    return 0;
+                }
+                else
+                {
+                    orderHead.Amount = pOrder.Order.GetTotalAmount() - pOrder.Order.GetTipsAmount();
+                    return 1;
+
+                }
+
+            }
+            else
+            {
+                orderHead.Amount = pOrder.Order.GetTotalAmount() - pOrder.Order.GetTipsAmount();
+                return 0;
+            }
+        }
+
+
+
+
+        public class DelieryOrderInfo {
+            public static HospOrderHead buffHead { get; set; }
+            public static HospOrderItem item { get; set; }
+
+            public static void PasteToHead (HospOrderHead head) {
+                head.Delivery = buffHead.Delivery;
+                head.BillKind = buffHead.BillKind;
+                head.Amount = buffHead.Amount;
+            }
+
+            public static void MergeToHead(HospOrderHead head)
+            {
+                head.Delivery = buffHead.Delivery;
+                head.BillKind = buffHead.BillKind;
+                head.Amount += buffHead.Amount;
+            }
+
+            public static HospOrderItem GetDeliveryItem(string opName, Int16 id)
+            {
+                var orderItem = new HospOrderItem {
+                    PaidQty = 0.0,
+                    OriginalQty = 0.0,
+                    OriginalPrice = item.OriginalPrice,
+                    Qty = 1.0,
+                    Price = item.Price,
+                    PrintFlag = false,
+                    VoidFlag = false,
+                    OrderOperator = opName,
+                    PriceSelect = 0,
+                    IDNo = id,
+                    ItemCode = item.ItemCode,
+                    TaxRate = 10.0,
+                    SpecialOrder = "",
+                    Condition = 0,
+                };
+
+                return orderItem;
+
+            }
+
+            public static void Convert(PlatformOrder pOrder, string deliveryItemCode) {
+                buffHead = new HospOrderHead();
+                item = null;
+
+                switch (pOrder.Order.Delivery_Type)
+                {
+                    case 1: //TIM: delivery order
+                            //TIM: If DeliveryCode is not defined, delivery fee is charged by Platform.
+                            //If DeliveryCode is defined, store do self-delivery, delivery fee is charged by store.
+                        buffHead.Delivery = true;
+                        buffHead.BillKind = 2;
+                        break;
+
+                    case 2: //TIM: Dine-In order
+                        buffHead.Delivery = false;
+                        buffHead.BillKind = 0;
+                        break;
+                    case 3: //TIM: Self-pickup order
+                        buffHead.Delivery = false;
+                        buffHead.BillKind = 2;
+                        break;
+                    default:
+                        break;
+                }
+
+                if (pOrder.Order.Delivery_Fee > 0)
+                {
+                    if (string.IsNullOrEmpty(deliveryItemCode))
+                    {
+                        buffHead.Amount = pOrder.Order.GetTotalAmount() - pOrder.Order.GetDeliveryFee() - pOrder.Order.GetTipsAmount();
+                        item = null;
+                    }
+                    else
+                    {
+                        buffHead.Amount = pOrder.Order.GetTotalAmount() - pOrder.Order.GetTipsAmount();
+                        item = new HospOrderItem
+                        {
+                            PaidQty = 0.0,
+                            OriginalQty = 0.0,
+                            OriginalPrice = pOrder.Order.GetDeliveryFee(),
+                            Qty = 1.0,
+                            Price = pOrder.Order.GetDeliveryFee(),
+                            PrintFlag = false,
+                            VoidFlag = false,
+                            //OrderOperator = orderHead.OpName,
+                            PriceSelect = 0,
+                            //IDNo = idNo++,
+                            ItemCode = deliveryItemCode,
+                            TaxRate = 10.0,
+                            SpecialOrder = "",
+                            Condition = 0,
+                        };
+                    }
+
+                }
+                else
+                {
+                    buffHead.Amount = pOrder.Order.GetTotalAmount() - pOrder.Order.GetTipsAmount();
+                    item = null;
+                }
+
+            }
 
 
         }
+
+
+
+
+
+
+
+
         /// <summary>
         /// For old DDA version (before v8.287), there is no order_notes fields, need to add order_notes in customer_name field.
         /// </summary>

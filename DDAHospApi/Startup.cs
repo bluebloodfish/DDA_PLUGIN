@@ -47,7 +47,11 @@ namespace DDAApi
 
             services.AddDbContext<AppDbContext>(
                 options => options.UseSqlServer(Configuration["DDADB"], builder => builder.UseRowNumberForPaging()));
-            
+            //services.AddDbContext<AppDbContext>(
+            //        options => options.UseSqlServer(Configuration["DDADB"],
+            //                                        sqlServerOptions => { sqlServerOptions.CommandTimeout(120); sqlServerOptions.UseRowNumberForPaging(); })
+            //    );
+
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(
@@ -113,7 +117,8 @@ namespace DDAApi
             if (optionsDDA.Value.EnableCancelOrderFunction > 0) {
                 services.BuildServiceProvider().GetService<ICancelOrderQueueManager>().Run();
             }
-            
+
+            //services.AddMvc(options => { options.EnableEndpointRouting = false; });
 
             #endregion
         }

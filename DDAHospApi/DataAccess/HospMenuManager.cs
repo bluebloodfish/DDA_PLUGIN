@@ -109,16 +109,16 @@ namespace DDAApi.DataAccess
 
 
 
-        public List<MenuItem> GetMenuItemsForMT(int Page_Index)
+        public async Task<List<MenuItem>> GetMenuItemsForMTAsync(int Page_Index)
         {
-            var menuItems = this._ctx.MenuItems.FromSql($"sp_GetMenuItemForMt {Page_Index}").ToList();
+            var menuItems = await this._ctx.MenuItems.FromSql($"sp_GetMenuItemForMt {Page_Index}").ToListAsync();
             return menuItems;
 
         }
 
-        public List<Category> GetCategoryForMT(int Page_Index)
+        public async Task<List<Category>> GetCategoryForMTAsync(int Page_Index)
         {
-            var Catregories = this._ctx.Catregories.FromSql($"sp_GetCategoryForMt {Page_Index}").ToList();
+            var Catregories = await this._ctx.Catregories.FromSql($"sp_GetCategoryForMt {Page_Index}").ToListAsync();
             return Catregories;
 
         }

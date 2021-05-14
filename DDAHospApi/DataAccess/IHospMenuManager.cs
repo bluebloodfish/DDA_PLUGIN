@@ -21,7 +21,7 @@ namespace DDAApi.DataAccess
         IEnumerable<TResult> GetCategories<TResult>(Func<Category, TResult> selector, int Page_Index);
         int GetCategoryTotalRows();
 
-        List<MenuItem> GetMenuItemsForMT(int Page_Index);
-        List<Category> GetCategoryForMT(int Page_Index);
+        Task<List<MenuItem>> GetMenuItemsForMTAsync(int Page_Index);
+        Task<List<Category>> GetCategoryForMTAsync(int Page_Index);
     }
 }

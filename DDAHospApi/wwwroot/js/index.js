@@ -24,4 +24,17 @@
             alert(err);
         }
     });
+
+    $.ajax({
+        url: '/api_v1/MenuForMT/GetVersion',
+        method: 'get',
+        dataType: 'json',
+        success: function (result) {
+            console.log(result.data.Version);
+            $('#mtMenuVersion').text('MTMenu Version: ' + result.data.Version);
+        },
+        error: function (err) {
+            alert(err);
+        }
+    });
 });

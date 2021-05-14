@@ -28,6 +28,9 @@ namespace DDAApi.DataAccess
         public DbSet<TT_ApiSetting> TT_ApiSettings { get; set; }
         public DbSet<TT_OrderProcess_Log> TT_OrderProcess_Logs { get; set; }
         public DbSet<TT_OrderNoMapping> TT_OrderNoMappings { get; set; }
+
+        public DbSet<TT_Exception_Log> TT_Exception_Log { get; set; }
+
         public DbSet<Profile> DDAProfile { get; set; }
 
 

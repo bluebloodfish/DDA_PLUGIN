@@ -37,11 +37,18 @@ namespace DDAApi.WebApi
             this._tableManage = tableManage;
         }
 
+        [HttpGet("GetVersion")]
+        public IActionResult GetVersion()
+        {
+            return Ok(new { code = 0, data = new { Version = "1.0.3" } });
+        }
 
         [ServiceFilter(typeof(AuthenFilter))]
         [HttpPost("GetMenuItems")]
-        public IActionResult GetMenuItems([FromBody]MT_Menu_Request request)
+        public async Task<IActionResult> GetMenuItems([FromBody]MT_Menu_Request request)
         {
+            var json = JsonConvert.SerializeObject(request);
+            this._logger.LogInformation($"*********GetMenuItems******** \n {json} \n***************************");
 
             try
             {
@@ -56,7 +63,7 @@ namespace DDAApi.WebApi
                 }
                 var categoryList = this._menuManager.GetCategories(x => x).ToList();
 
-                var menuItemList = this._menuManager.GetMenuItemsForMT(request.Page_Index);
+                var menuItemList = await this._menuManager.GetMenuItemsForMTAsync(request.Page_Index);
 
                 var list = new List<MT_MenuItem_Response>();
 
@@ -68,10 +75,15 @@ namespace DDAApi.WebApi
                     item.Description3 = string.IsNullOrEmpty(x.Description3) ? "" : x.Description3;
                     item.Description4 = string.IsNullOrEmpty(x.Description4) ? "" : x.Description4;
                     item.Category = x.Category;
-                    item.Price = (int)(x.Price1 * 100);
-                    item.Price1 = (int)(x.Price2 * 100);
-                    item.Price2 = (int)(x.Price3 * 100);
-                    item.Price3 = (int)(x.Price4 * 100);
+
+                    //if (item.ItemCode.ToUpper() == "NM28") {
+                    //    this._logger.LogError($"ItemCode={item.ItemCode}, Price1={x.Price1}, Price2={x.Price2}, Price3={x.Price3}, Price4={x.Price4}");
+                    //}
+
+                    item.Price  = (int)(Math.Round(x.Price1 * 100, 2));
+                    item.Price1 = (int)(Math.Round(x.Price2 * 100, 2));
+                    item.Price2 = (int)(Math.Round(x.Price3 * 100, 2));
+                    item.Price3 = (int)(Math.Round(x.Price4 * 100, 2));
 
                     item.SubDescription = string.IsNullOrEmpty(x.SubDescription1) ? "" : x.SubDescription1;
                     item.SubDescription1 = string.IsNullOrEmpty(x.SubDescription2) ? "" : x.SubDescription2;
@@ -115,13 +127,17 @@ namespace DDAApi.WebApi
 
         [ServiceFilter(typeof(AuthenFilter))]
         [HttpPost("GetCategories")]
-        public IActionResult GetCategories([FromBody]MT_Menu_Request request)
+        public async Task<IActionResult> GetCategories([FromBody]MT_Menu_Request request)
         {
+            var json = JsonConvert.SerializeObject(request);
+            this._logger.LogInformation($"*********GetCategories******** \n {json} \n***************************");
+
             try
             {
                 var total = this._menuManager.GetCategoryTotalRows();
 
-                var total_pages = (int)Math.Ceiling(total / (double)50);
+                var total_pages = (int)Math.Ceiling(total / ((double)50));
+               
 
                 if (request.Page_Index >= total_pages)
                 {
@@ -129,7 +145,8 @@ namespace DDAApi.WebApi
 
                 }
 
-                var categoryList = this._menuManager.GetCategoryForMT(request.Page_Index);
+                var categoryList = await this._menuManager.GetCategoryForMTAsync(request.Page_Index);
+
                 var list = new List<MT_Category_Response>();
                 foreach(var x in categoryList) {
                     var item = new MT_Category_Response();
@@ -139,6 +156,7 @@ namespace DDAApi.WebApi
                     item.Name2 = string.IsNullOrEmpty(x.Name2) ? "" : x.Name2;
                     list.Add(item);
                 }
+
                 return Ok(new { code = 0, data = new { Total_Rows = total, Total_Pages = total_pages, Page_Size = list.Count(), Rows = list }, message = "Ok" });
             }
             catch (Exception e) {

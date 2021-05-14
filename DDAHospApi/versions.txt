@@ -1,4 +1,11 @@
-﻿Console: v3.3.10
+﻿Console: v3.3.11
+OrderApi: 2.0.4
+MenuForMT: 1.0.2
+1. Fix Order_Processor Amount is not sync with Item list when merge order.
+2. Core2.2 Bug, cause HttpClient has disabled. Attempted to read past the end of the stream. 
+	Add services.AddMvc(options => { options.EnableEndpointRouting = false; }); to startup.cs
+
+Console: v3.3.10
 OrderApi: 2.0.3
 1. Add Console Controller to maintain MainApiVersion
 2. Fix Order_Notes Bug in OrderProcessor.
