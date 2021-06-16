@@ -118,7 +118,7 @@ namespace DDAApi.OrderQueue
                             result = this._orderProcess.SimpleOrder(order).GetAwaiter().GetResult();
                             //_tt_OpenApi.CallbackToConfirmOrder(result.PosOrderNo, order.Order.TT_Order_Id);
 
-                        } else if (order.Order_Type == 1) {
+                        } else if (order.Order_Type == 1 || order.Order_Type == 2) {
                             result = this._orderProcess.POSCodeOrder(order).GetAwaiter().GetResult();
                             
                         }
@@ -131,7 +131,8 @@ namespace DDAApi.OrderQueue
                             LogDateTime = DateTime.Now,
                             Status = result.Result.Status.ApiCode(),
                             StatusNotes = result.Result.Message,
-                            ErrorId = result.ErrorId
+                            ErrorId = result.ErrorId,
+                            JsonStr = ""
                         }).GetAwaiter().GetResult();
 
 

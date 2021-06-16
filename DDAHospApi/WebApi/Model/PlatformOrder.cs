@@ -9,12 +9,32 @@ namespace DDAApi.WebApi.Model
     {
         public string Shop_Code { get; set; }
         public string Platform_Name { get; set; } //For DDA
-        public int Order_Type { get; set; } //0: Hosp Simple Order; 1: Hosp code matching order
+        public int Order_Type { get; set; } //0: Hosp Simple Order; 1: Hosp code matching order; 2: Tyro Order  
         public P_Order Order { get; set; }
         public P_Customer Customer { get; set; }
         public P_Courier Courier { get; set; }
         public List<P_OrderItem> Items { get; set; }
         public P_Callback Callback { get; set; }
+
+
+        public double GetTotalDiscount() {
+            var totalDiscount = Order.Discount / 100.00;
+            if (Items != null && Items.Count > 0) {
+                var itemDiscounts = Items.Select(x => (x.Discount /100.00) * (x.Qty / 100.00)).Sum();
+                foreach (var item in Items) {
+                    if(item.Instructions != null && item.Instructions.Count() > 0)
+                    {
+                        itemDiscounts += item.Instructions.Select(x => (x.Discount / 100.00) * (x.Qty / 100.00)).Sum();
+
+                    }
+                }
+
+                totalDiscount += itemDiscounts;
+            }
+
+            return totalDiscount;
+        }
+
     }
 
     public class P_Order
@@ -37,8 +57,14 @@ namespace DDAApi.WebApi.Model
         public string Delivery_Notes { get; set; } //Customer delviery message
 
         public int Delivery_Type { get; set; }
+
         public double Lng { get; set; }
         public double Lat { get; set; }
+
+        /// Add New Fields
+        public string DiscountDescription { get; set; } //TableOrdering
+        public string SurchargeDescription { get; set; } //TableOrdering
+
 
         public double GetDiscount()
         {
@@ -113,6 +139,9 @@ namespace DDAApi.WebApi.Model
         public int Price_Level_Store { get; set; }
         public string OrderItem_Id { get; set; } //Hidden field.the order item id on platform system, use as order item cancellation.
 
+        public int Discount { get; set; }
+        public string DiscountDescription { get; set; }
+
         public List<P_Instruction> Instructions { get; set; }
 
         public int IsGst()
@@ -138,6 +167,57 @@ namespace DDAApi.WebApi.Model
             return Price / 100.0;
         }
 
+        public P_OrderItem Clone() {
+            P_OrderItem newOrderItem = new P_OrderItem() {
+                Gst = this.Gst,
+                Qty = this.Qty,
+                Price = this.Price,
+                Item_Name1 = this.Item_Name1,
+                Item_Name2 = this.Item_Name2,
+                Customer_Notes = this.Customer_Notes,
+                Item_Description1 = this.Item_Description1,
+                Item_Description2 = this.Item_Description2,
+                Item_Code = this.Item_Code,
+                Item_Code_Store = this.Item_Code_Store,
+                Sku = this.Sku,
+                Price_Level = this.Price_Level,
+                Price_Level_Store = this.Price_Level_Store,
+                OrderItem_Id = this.OrderItem_Id,
+                Discount = this.Discount,
+                DiscountDescription = this.DiscountDescription
+            };
+
+
+            List<P_Instruction> instrucitons = new List<P_Instruction>();
+            if (this.Instructions != null 
+                && this.Instructions.Count() > 0)
+            {
+                foreach (var instruct in this.Instructions)
+                {
+                    P_Instruction pInstruct = new P_Instruction() {
+                        Item_Code           = instruct.Item_Code,
+                        Item_Code_Store     = instruct.Item_Code_Store,
+                        Sku                 = instruct.Sku,
+                        Price_Level         = instruct.Price_Level,
+                        Price_Level_Store   = instruct.Price_Level_Store,
+                        Item_Name1          = instruct.Item_Name1,
+                        Item_Name2          = instruct.Item_Name2,
+                        Gst                 = instruct.Gst,
+                        Qty                 = instruct.Qty,
+                        Price               = instruct.Price,
+                        Discount            = instruct.Discount,
+                        DiscountDescription = instruct.DiscountDescription
+                    };
+
+                    instrucitons.Add(pInstruct);
+                }
+            }
+
+            newOrderItem.Instructions = instrucitons;
+            return newOrderItem;
+
+        }
+
     }
 
    
@@ -156,6 +236,9 @@ namespace DDAApi.WebApi.Model
         public int Gst { get; set; }
         public int Qty { get; set; }
         public int Price { get; set; }
+
+        public int Discount { get; set; }
+        public string DiscountDescription { get; set; }
 
         public int IsGst()
         {

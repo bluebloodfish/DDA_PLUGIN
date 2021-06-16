@@ -72,7 +72,10 @@ namespace DDAApi.OrderQueue
                 var result = OrderProcessStatusFactory.TableOccupied(pOrder.Order.Table_No);
                 return new OrderProcessResult { Result = result,
                                                 PosOrderNo = "",
-                                                TTOrderId = pOrder.Order.TT_Order_Id };
+                                                OrderType = pOrder.Order_Type,
+                                                TTOrderId = pOrder.Order.TT_Order_Id,
+                                                PlatOrderNo = pOrder.Order.Order_No,
+                                                };
             }
 
 
@@ -86,7 +89,10 @@ namespace DDAApi.OrderQueue
                 var result = OrderProcessStatusFactory.PosInnerError(innerMessage: "Failed to convert order data.");
                 return new OrderProcessResult { Result = result,                                              
                                                 PosOrderNo = "",
-                                                TTOrderId = pOrder.Order.TT_Order_Id };
+                                                OrderType = pOrder.Order_Type,
+                                                TTOrderId = pOrder.Order.TT_Order_Id,
+                                                PlatOrderNo = pOrder.Order.Order_No,
+                                            };
             }
 
             try
@@ -102,6 +108,8 @@ namespace DDAApi.OrderQueue
                         Result = OrderProcessStatusFactory.FailedToGetOrderNo(),
                         PosOrderNo = "",
                         TTOrderId = pOrder.Order.TT_Order_Id,
+                        OrderType = pOrder.Order_Type,
+                        PlatOrderNo = pOrder.Order.Order_No,
                         ErrorId = errorId
                     };
                 }
@@ -163,6 +171,8 @@ namespace DDAApi.OrderQueue
                         return new OrderProcessResult { Result = result,
                                                         PosOrderNo = orderNo,
                                                         TTOrderId = pOrder.Order.TT_Order_Id,
+                                                        OrderType = pOrder.Order_Type,
+                                                        PlatOrderNo = pOrder.Order.Order_No,
                                                         ErrorId = errorId };
                     }
                 }
@@ -174,6 +184,8 @@ namespace DDAApi.OrderQueue
                     return new OrderProcessResult { Result = result,
                                                     PosOrderNo = "",
                                                     TTOrderId = pOrder.Order.TT_Order_Id,
+                                                    OrderType = pOrder.Order_Type,
+                                                    PlatOrderNo = pOrder.Order.Order_No,
                                                     ErrorId = errorId };
                 }
                 
@@ -188,7 +200,9 @@ namespace DDAApi.OrderQueue
                 return new OrderProcessResult { Result = result,
                                                 PosOrderNo = "",
                                                 TTOrderId = pOrder.Order.TT_Order_Id,
-                                                ErrorId = errorId }; ;
+                                                OrderType = pOrder.Order_Type,
+                                                PlatOrderNo = pOrder.Order.Order_No,
+                                                ErrorId = errorId }; 
 
             }
 
@@ -197,7 +211,7 @@ namespace DDAApi.OrderQueue
         public async Task<OrderProcessResult> POSCodeOrder(PlatformOrder pOrder)
         {
             OrderParserResult parserResult = null;
-
+            var options = this._options;
             bool isMergeOrder = false;
 
             if (!IsTableAvaliableForOrder(pOrder))
@@ -205,6 +219,8 @@ namespace DDAApi.OrderQueue
                 //Table is occupied.
 
                 //Auto reject for order if table is occupied.
+
+                this._logger.LogError($"OrderForOccupiedTable: {this._options.OrderForOccupiedTable}");
                 if (this._options.OrderForOccupiedTable == 0)
                 {
                     var errorId = TokenFactory.GenerateErrorId();
@@ -216,6 +232,8 @@ namespace DDAApi.OrderQueue
                         Result = result,
                         PosOrderNo = "",
                         TTOrderId = pOrder.Order.TT_Order_Id,
+                        OrderType = pOrder.Order_Type,
+                        PlatOrderNo = pOrder.Order.Order_No,
                         ErrorId = errorId
                     };
 
@@ -247,6 +265,8 @@ namespace DDAApi.OrderQueue
                 return new OrderProcessResult { Result = result,
                                                 PosOrderNo = "",
                                                 TTOrderId = pOrder.Order.TT_Order_Id,
+                                                PlatOrderNo = pOrder.Order.Order_No,
+                                                OrderType = pOrder.Order_Type,
                                                 ErrorId = errorId
                                              };
 
@@ -259,7 +279,10 @@ namespace DDAApi.OrderQueue
                 return new OrderProcessResult { Result = result,
                                                 PosOrderNo = "",
                                                 TTOrderId = pOrder.Order.TT_Order_Id,
-                                                ErrorId = errorId};
+                                                OrderType = pOrder.Order_Type,
+                                                PlatOrderNo = pOrder.Order.Order_No,
+                                                ErrorId = errorId
+                                            };
             }
 
 
@@ -280,6 +303,8 @@ namespace DDAApi.OrderQueue
                             Result = OrderProcessStatusFactory.FailedToGetOrderNo(),
                             PosOrderNo = "",
                             TTOrderId = pOrder.Order.TT_Order_Id,
+                            PlatOrderNo = pOrder.Order.Order_No,
+                            OrderType = pOrder.Order_Type,
                             ErrorId = errorId
                         };
                     }
@@ -362,7 +387,9 @@ namespace DDAApi.OrderQueue
                             {
                                 Result = OrderProcessStatusFactory.Success(),
                                 PosOrderNo = orderNo,
-                                TTOrderId = pOrder.Order.TT_Order_Id
+                                OrderType = pOrder.Order_Type,
+                                TTOrderId = pOrder.Order.TT_Order_Id,
+                                PlatOrderNo = pOrder.Order.Order_No,
                             };
                         }
                         else {
@@ -370,7 +397,9 @@ namespace DDAApi.OrderQueue
                             {
                                 Result = OrderProcessStatusFactory.MergeSuccess(),
                                 PosOrderNo = orderNo,
-                                TTOrderId = pOrder.Order.TT_Order_Id
+                                OrderType = pOrder.Order_Type,
+                                TTOrderId = pOrder.Order.TT_Order_Id,
+                                PlatOrderNo = pOrder.Order.Order_No,
                             };
                         }
                         
@@ -385,6 +414,8 @@ namespace DDAApi.OrderQueue
                             Result = result,
                             PosOrderNo = orderNo,
                             TTOrderId = pOrder.Order.TT_Order_Id,
+                            OrderType = pOrder.Order_Type,
+                            PlatOrderNo = pOrder.Order.Order_No,
                             ErrorId = errorId,
                         };
 
@@ -400,6 +431,8 @@ namespace DDAApi.OrderQueue
                         Result = result,
                         PosOrderNo = "",
                         TTOrderId = pOrder.Order.TT_Order_Id,
+                        OrderType = pOrder.Order_Type,
+                        PlatOrderNo = pOrder.Order.Order_No,
                         ErrorId = errorId
                     };
                 }
@@ -415,6 +448,8 @@ namespace DDAApi.OrderQueue
                 return new OrderProcessResult { Result = result,
                                                 PosOrderNo = "",
                                                 TTOrderId = pOrder.Order.TT_Order_Id,
+                                                OrderType = pOrder.Order_Type,
+                                                PlatOrderNo = pOrder.Order.Order_No,
                                                 ErrorId = errorId
                                                 }; 
 

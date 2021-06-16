@@ -1,4 +1,26 @@
-﻿Console: v3.3.11
+﻿Console: v3.3.13
+OrderApi: 2.0.5
+MenuForMT: 1.0.3
+1. Add ChnCodePage. Converter between Simplified and Traditional Chinese.
+
+
+Console: v3.3.12
+OrderApi: 2.0.5
+MenuForMT: 1.0.3
+Compatable with TyroConnect Order
+1. Update PlatformOrder class, add description for discount and surcharge, add item discount.
+2. Update OrderProcess_Log class, add JsonStr field to log coming payload.
+3. Put SuchargeDescription as Spell Instruction for Surcharge Item.
+4. Fix all string length, not allow to exeed the size of database data field.
+5. Add SplitKitchenItems settings.
+
+Console: v3.3.11
+OrderApi: 2.0.4
+MenuForMT: 1.0.3
+1. Price calculate bug in MenuForMt
+
+
+Console: v3.3.11
 OrderApi: 2.0.4
 MenuForMT: 1.0.2
 1. Fix Order_Processor Amount is not sync with Item list when merge order.

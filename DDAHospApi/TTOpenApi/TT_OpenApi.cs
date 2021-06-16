@@ -41,6 +41,8 @@ namespace DDAApi.TTOpenApi
                                 Message = "OK",
                                 POSOrderNo = orderResult.PosOrderNo,
                                 OrderId = orderResult.TTOrderId,
+                                OrderType = orderResult.OrderType,
+                                PlatOrderNo = orderResult.PlatOrderNo,
                                 ErrorId = ""
                             };
                             break;
@@ -51,6 +53,8 @@ namespace DDAApi.TTOpenApi
                                 Message = orderResult.Result.Message,
                                 POSOrderNo = orderResult.PosOrderNo,
                                 OrderId = orderResult.TTOrderId,
+                                OrderType = orderResult.OrderType,
+                                PlatOrderNo = orderResult.PlatOrderNo,
                                 ErrorId = ""
                             };
                             break;
@@ -61,6 +65,8 @@ namespace DDAApi.TTOpenApi
                                 Message = $"{orderResult.Result.Message}",
                                 POSOrderNo = "",
                                 OrderId = orderResult.TTOrderId,
+                                OrderType = orderResult.OrderType,
+                                PlatOrderNo = orderResult.PlatOrderNo,
                                 ErrorId = orderResult.ErrorId
                             };
                             break;
@@ -71,6 +77,8 @@ namespace DDAApi.TTOpenApi
                                 Message = $"{orderResult.Result.Message}",
                                 POSOrderNo = "",
                                 OrderId = orderResult.TTOrderId,
+                                OrderType = orderResult.OrderType,
+                                PlatOrderNo = orderResult.PlatOrderNo,
                                 ErrorId = orderResult.ErrorId
                             };
                             break;
@@ -81,6 +89,8 @@ namespace DDAApi.TTOpenApi
                                 Message = $"{orderResult.Result.Message}",
                                 POSOrderNo = "",
                                 OrderId = orderResult.TTOrderId,
+                                OrderType = orderResult.OrderType,
+                                PlatOrderNo = orderResult.PlatOrderNo,
                                 ErrorId = orderResult.ErrorId
                             };
                             break;
@@ -91,6 +101,8 @@ namespace DDAApi.TTOpenApi
                                 Message = $"{orderResult.Result.Message}",
                                 POSOrderNo = orderResult.PosOrderNo,
                                 OrderId = orderResult.TTOrderId,
+                                OrderType = orderResult.OrderType,
+                                PlatOrderNo = orderResult.PlatOrderNo,
                                 ErrorId = orderResult.ErrorId
                             };
                             break;
@@ -101,6 +113,8 @@ namespace DDAApi.TTOpenApi
                                 Message = $"{orderResult.Result.Message}",
                                 POSOrderNo = "",
                                 OrderId = orderResult.TTOrderId,
+                                OrderType = orderResult.OrderType,
+                                PlatOrderNo = orderResult.PlatOrderNo,
                                 ErrorId = orderResult.ErrorId
                             };
                             break;
@@ -110,6 +124,8 @@ namespace DDAApi.TTOpenApi
                                 Code = 3000,
                                 Message = "Unknown Error.",
                                 POSOrderNo = "",
+                                OrderType = orderResult.OrderType,
+                                PlatOrderNo = orderResult.PlatOrderNo,
                                 OrderId = orderResult.TTOrderId
                             };
                             break;
@@ -183,7 +199,9 @@ namespace DDAApi.TTOpenApi
             public string Message { get; set; }
             public string LogMessage { get; set; }
             public string POSOrderNo { get; set; }
+            public string PlatOrderNo { get; set; }
             public long OrderId { get; set; }
+            public int OrderType { get; set; }
             public string ErrorId { get; set; }
         }
 

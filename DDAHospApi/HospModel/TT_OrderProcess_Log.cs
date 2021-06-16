@@ -17,6 +17,7 @@ namespace DDAApi.HospModel
         public int Status { get; set; }
         public string StatusNotes { get; set; }
         public string ErrorId { get; set; }
+        public string JsonStr { get; set; }
 
     }
 }

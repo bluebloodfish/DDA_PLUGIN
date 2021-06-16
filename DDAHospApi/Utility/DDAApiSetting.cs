@@ -91,6 +91,16 @@ namespace DDAApi.Utility
         [DefaultValue(0)]
         public int OrderForOccupiedTable { get; set; }
 
+        //When ItemQty is greater than 1; 0 = not split, kitchen docket has consolidated qty; 1 = the consolidted qty is splited in each-item.
+        [Range(0, 1)]
+        [DefaultValue(0)]
+        public int SplitKitchenItems { get; set; }
+
+        //Default = 0; 0 = Simplified; 1 = Traditional Chinese
+        [Range(0, 1)]
+        [DefaultValue(0)]
+        public int ChnCodePage { get; set; }
+
         //[Required]
         //[DefaultValue(2020)]
         //[Range(minimum:1990, maximum: 2999, ErrorMessage = "StartYear must be between 1990 and 2999.")]

@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace DDAApi.Utility
 {
-    public static class FullWidthString
+    public static class StringUtil
     {
-        public static string Get(string str, bool skipLinefeed) {
+        public static string FullWidthString(string str, bool skipLinefeed) {
             StringBuilder newstr = new StringBuilder();
             int count = 0;
 
@@ -60,5 +60,7 @@ namespace DDAApi.Utility
             var temp = newstr.ToString();
             return newstr.ToString();
         }
+
+        
     }
 }

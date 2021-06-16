@@ -79,7 +79,7 @@ namespace DDAApi.Order_Parser
                         }
 
                         if (!string.IsNullOrEmpty(itemDesc)) {
-                            hItem.SpecialOrder = FullWidthString.Get(itemDesc, false);
+                            hItem.SpecialOrder = StringUtil.FullWidthString(itemDesc, false).TrimToSize(255);
                         }
 
                         
@@ -101,7 +101,7 @@ namespace DDAApi.Order_Parser
                         }
 
                         if (!string.IsNullOrEmpty(itemDesc)) {
-                            hItem.SpecialOrder = FullWidthString.Get(itemDesc, false);
+                            hItem.SpecialOrder = StringUtil.FullWidthString(itemDesc, false).TrimToSize(255);
                         }
                         
                     }
@@ -128,7 +128,7 @@ namespace DDAApi.Order_Parser
                     Price = pOrder.Order.GetDeliveryFee(),
                     PrintFlag = false,
                     VoidFlag = false,
-                    OrderOperator = orderHead.OpName,
+                    OrderOperator = orderHead.OpName.TrimToSize(15),
                     PriceSelect = 0,
                     IDNo = idNo++,
                     ItemCode = this._options.DeliveryItemCode,
@@ -151,14 +151,19 @@ namespace DDAApi.Order_Parser
                     Price = pOrder.Order.GetSurchargeAmount(),
                     PrintFlag = false,
                     VoidFlag = false,
-                    OrderOperator = orderHead.OpName,
+                    OrderOperator = orderHead.OpName.TrimToSize(15),
                     PriceSelect = 0,
                     IDNo = idNo++,
                     ItemCode = this._options.SurchargeItemCode,
                     TaxRate = 10.0,
-                    SpecialOrder = "",
+                    //SpecialOrder = pOrder.Order.SurchargeDescription.TrimToSize(255),
                     Condition = 0,
                 };
+
+                var surDes = pOrder.Order.SurchargeDescription.TrimToSize(255);
+                
+                surchargeItem.SpecialOrder = GetChnConvertString(surDes);
+
                 hospOrderItems.Add(surchargeItem);
                 orderHead.GST += pOrder.Order.GetSurchargeAmount() / 11;
             }
@@ -214,6 +219,15 @@ namespace DDAApi.Order_Parser
         /// <returns></returns>
         public OrderParserResult HospOrderWPOSCode(PlatformOrder pOrder)
         {
+            if (pOrder != null && pOrder.Order !=null && !string.IsNullOrEmpty(pOrder.Order.Order_Notes))
+            {
+                pOrder.Order.Order_Notes = GetChnConvertString(pOrder.Order.Order_Notes);
+                
+            }
+
+            
+
+
             var hospOrderItems = new List<HospOrderItem>();
             var recvAcct = new HospRecvAcct();
 
@@ -224,10 +238,16 @@ namespace DDAApi.Order_Parser
             Int16 idNo = 1;
             double orderGstAmount = 0.0;
 
+            if (this._options.SplitKitchenItems == 1) {
+                var items = SplitPOrderItems(pOrder.Items);
+                pOrder.Items = items;
+            }
+
             if (pOrder.Items != null && pOrder.Items.Count > 0)
             {
                 foreach (var pItem in pOrder.Items)
                 {
+                    //When itemcode doesnot exist, if split line code, add the item to list; otherwise, stop processing, return error.
                     if (!DoesMenuItemExist(pItem.Item_Code))
                     {
                         if (pItem.Item_Code == "----")
@@ -248,7 +268,7 @@ namespace DDAApi.Order_Parser
                                 SentToKitchen = false,
                                 CheckListPrinted = false,
                                 VoidFlag = false,
-                                OrderOperator = orderHead.OpName,
+                                OrderOperator = orderHead.OpName.TrimToSize(15),
                                 OriginalPrice = 0,
                                 OriginalQty = 0,
                                 RedeemItem = false,
@@ -281,7 +301,10 @@ namespace DDAApi.Order_Parser
 
                         if (!string.IsNullOrEmpty(pItem.Customer_Notes))
                         {
-                            hItem.SpecialOrder = FullWidthString.Get(pItem.Customer_Notes, false);
+                            pItem.Customer_Notes = GetChnConvertString(pItem.Customer_Notes);
+                            
+                            hItem.SpecialOrder = StringUtil.FullWidthString(pItem.Customer_Notes, false).TrimToSize(255);
+
                         }
 
 
@@ -369,14 +392,19 @@ namespace DDAApi.Order_Parser
                     Price = pOrder.Order.GetSurchargeAmount(),
                     PrintFlag = false,
                     VoidFlag = false,
-                    OrderOperator = orderHead.OpName,
+                    OrderOperator = orderHead.OpName.TrimToSize(15),
                     PriceSelect = 0,
                     IDNo = idNo++,
                     ItemCode = this._options.SurchargeItemCode,
                     TaxRate = 10.0,
-                    SpecialOrder = "",
+                    //SpecialOrder = pOrder.Order.SurchargeDescription.TrimToSize(255),
                     Condition = 0,
                 };
+
+                var surchargeDesc = pOrder.Order.SurchargeDescription.TrimToSize(255);
+
+                surchargeItem.SpecialOrder = GetChnConvertString(surchargeDesc);
+
                 hospOrderItems.Add(surchargeItem);
                 orderHead.GST += pOrder.Order.GetSurchargeAmount() / 11;
             }
@@ -465,7 +493,7 @@ namespace DDAApi.Order_Parser
                                 SentToKitchen = false,
                                 CheckListPrinted = false,
                                 VoidFlag = false,
-                                OrderOperator = orderHead.OpName,
+                                OrderOperator = orderHead.OpName.TrimToSize(15),
                                 OriginalPrice = 0,
                                 OriginalQty = 0,
                                 RedeemItem = false,
@@ -499,11 +527,13 @@ namespace DDAApi.Order_Parser
 
                         if (!string.IsNullOrEmpty(pItem.Customer_Notes))
                         {
-                            hItem.SpecialOrder = $"Merge from {pOrder.Platform_Name} - {FullWidthString.Get(pItem.Customer_Notes, false)}";
+                            pItem.Customer_Notes = GetChnConvertString(pItem.Customer_Notes);
+
+                            hItem.SpecialOrder = $"Merge from {pOrder.Platform_Name} - {StringUtil.FullWidthString(pItem.Customer_Notes, false)}".TrimToSize(255);
                         }
                         else
                         {
-                            hItem.SpecialOrder = $"Merge from {pOrder.Platform_Name}";
+                            hItem.SpecialOrder = $"Merge from {pOrder.Platform_Name}".TrimToSize(255);
                         }
 
 
@@ -610,12 +640,12 @@ namespace DDAApi.Order_Parser
                     Price = pOrder.Order.GetSurchargeAmount(),
                     PrintFlag = false,
                     VoidFlag = false,
-                    OrderOperator = orderHead.OpName,
+                    OrderOperator = orderHead.OpName.TrimToSize(15),
                     PriceSelect = 0,
                     IDNo = idNo++,
                     ItemCode = this._options.SurchargeItemCode,
                     TaxRate = 10.0,
-                    SpecialOrder = "",
+                    SpecialOrder = pOrder.Order.SurchargeDescription.TrimToSize(255),
                     Condition = 0,
                 };
                 additionalDDAOrderItems.Add(surchargeItem);
@@ -654,37 +684,34 @@ namespace DDAApi.Order_Parser
         {
             int version = this._versionManager.GetDDAVersion();
 
-            orderHead.OpName = pOrder.Platform_Name;
-            
+            orderHead.OpName = pOrder.Platform_Name.TrimToSize(15);
 
-            var discount = pOrder.Order.GetDiscount();
+            //var discount = pOrder.Order.GetDiscount();
+            var discount = pOrder.GetTotalDiscount();
             if (discount > 0)
             {
                 orderHead.DollarDiscount = orderHead.DollarDiscount + discount;
             }
             orderHead.Tips = orderHead.Tips + pOrder.Order.GetTipsAmount();
-            orderHead.CustomerAddress = GetCustomerAddress(pOrder);
-            orderHead.CustomerTelephone = GetCustomerPhone(pOrder);
+            orderHead.CustomerAddress = GetCustomerAddress(pOrder).TrimToSize(100);
+            orderHead.CustomerTelephone = GetCustomerPhone(pOrder).TrimToSize(15);
             orderHead.BookingNo = "";
             orderHead.VIPNo = 999999;
 
-
             if (version >= 8282)
             {
-                orderHead.CustomerName = GetCustomerName(pOrder);
+                orderHead.CustomerName = GetCustomerName(pOrder).TrimToSize(512);
                 orderHead.Notes = GetOrderNotes(pOrder, true);
             }
             else
             {
-                orderHead.CustomerName = PutNotesInCustomerName(pOrder);
+                orderHead.CustomerName = PutNotesInCustomerName(pOrder).TrimToSize(512);
             }
-
-
 
             if (orderHead.DollarDiscount > 0)
             {
                 orderHead.DiscountKind = 2;
-                orderHead.DiscountOperator = pOrder.Platform_Name;
+                orderHead.DiscountOperator = pOrder.Platform_Name.TrimToSize(15);
             }
 
             if (pOrder.Order.Pickup_Time == 0)
@@ -713,6 +740,51 @@ namespace DDAApi.Order_Parser
 
 
         #region Private Functions
+        private List<P_OrderItem> SplitPOrderItems(List<P_OrderItem> pOrderItems)
+        {
+            List<P_OrderItem> newPOrderItems = new List<P_OrderItem>();
+            foreach (var item in pOrderItems)
+            {
+                double dqty = item.GetQty();
+                int iqty = (int)dqty;
+
+                if (iqty > 1)
+                {
+                    for (int i = 0; i < iqty; i++) {
+                        var eachPOrderItem = item.Clone();
+                        eachPOrderItem.Qty = 100;
+                        if (eachPOrderItem.Instructions != null && eachPOrderItem.Instructions.Count() > 0) {
+                            foreach (var instruct in eachPOrderItem.Instructions) {
+                                instruct.Qty = (int)(instruct.Qty / dqty);
+                            }
+                        }
+                        newPOrderItems.Add(eachPOrderItem);
+                    }
+
+                    if ((dqty - iqty) >= 0.01) {
+                        var eachPOrderItem = item.Clone();
+                        eachPOrderItem.Qty = (int)(dqty - iqty)*100;
+                        if (eachPOrderItem.Instructions != null && eachPOrderItem.Instructions.Count() > 0)
+                        {
+                            foreach (var instruct in eachPOrderItem.Instructions)
+                            {
+                                instruct.Qty = (int)((instruct.Qty - instruct.Qty / dqty * iqty));
+                            }
+                        }
+                        newPOrderItems.Add(eachPOrderItem);
+                    }
+
+                }
+                else {
+                    newPOrderItems.Add(item);
+                }
+
+            }
+
+            return newPOrderItems;
+
+        }
+        
         /// <summary>
         /// Retrive OrderHead info from PlatformOrder object.
         /// </summary>
@@ -728,30 +800,31 @@ namespace DDAApi.Order_Parser
             orderHead = new HospOrderHead
             {
                 OrderDate = DateTime.Now,
-                OpName = pOrder.Platform_Name,
-                ServicePerson = pOrder.Platform_Name,
-                DollarDiscount = pOrder.Order.GetDiscount(),
+                OpName = pOrder.Platform_Name.TrimToSize(15),
+                ServicePerson = pOrder.Platform_Name.TrimToSize(15),
+                //DollarDiscount = pOrder.Order.GetDiscount(),
+                DollarDiscount = pOrder.GetTotalDiscount(),
                 Tips = pOrder.Order.GetTipsAmount(),
                 ServiceCharge = 0,
-                DiscountOperator = pOrder.Platform_Name,
+                DiscountOperator = pOrder.Platform_Name.TrimToSize(15),
                 BillKind = 0,
                 PriceIncludesGST = true,
                 CurrentGSTRate = 10.0,
-                CustomerAddress = GetCustomerAddress(pOrder),
-                CustomerTelephone = GetCustomerPhone(pOrder),
-                MachineID = pOrder.Platform_Name,
+                CustomerAddress = GetCustomerAddress(pOrder).TrimToSize(100),
+                CustomerTelephone = GetCustomerPhone(pOrder).TrimToSize(15),
+                MachineID = pOrder.Platform_Name.TrimToSize(15),
                 BookingNo = "",
                 VIPNo = 999999
             };
 
             if (version >= 8282)
             {
-                orderHead.CustomerName = GetCustomerName(pOrder);
+                orderHead.CustomerName = GetCustomerName(pOrder).TrimToSize(512);
                 orderHead.Notes = GetOrderNotes(pOrder, true);
             }
             else
             {
-                orderHead.CustomerName = PutNotesInCustomerName(pOrder);
+                orderHead.CustomerName = PutNotesInCustomerName(pOrder).TrimToSize(512);
             }
 
 
@@ -759,7 +832,7 @@ namespace DDAApi.Order_Parser
             if (orderHead.DollarDiscount > 0)
             {
                 orderHead.DiscountKind = 2;
-                orderHead.DiscountOperator = pOrder.Platform_Name;
+                orderHead.DiscountOperator = pOrder.Platform_Name.TrimToSize(15);
             }
 
             if (pOrder.Order.Pickup_Time == 0)
@@ -800,7 +873,7 @@ namespace DDAApi.Order_Parser
                 Price = pItem.GetPrice(),
                 PrintFlag = false,
                 VoidFlag = false,
-                OrderOperator = orderHead.OpName,
+                OrderOperator = orderHead.OpName.TrimToSize(15),
                 Condition = 0,
             };
 
@@ -831,6 +904,7 @@ namespace DDAApi.Order_Parser
             return hItem;
         }
 
+
         /// <summary>
         /// Retrive OrderItemInstruction info from PlatformOrder object.
         /// </summary>
@@ -847,7 +921,7 @@ namespace DDAApi.Order_Parser
                 Price = pInstruct.GetPrice(),
                 PrintFlag = false,
                 VoidFlag = false,
-                OrderOperator = orderHead.OpName,
+                OrderOperator = orderHead.OpName.TrimToSize(15),
                 Condition = 1
             };
 
@@ -887,11 +961,12 @@ namespace DDAApi.Order_Parser
             {
                 AccountDate = orderHead.OrderDate,
                 PaidAmount = orderHead.PaidAmount,
-                Payby = pOrder.Platform_Name.ToUpper(),
+                Payby = pOrder.Platform_Name.ToUpper().TrimToSize(25),
                 IDNo = 1,
-                OpName = orderHead.OpName,
-                MachineID = pOrder.Platform_Name,
-                GiftCardExpireDate = new DateTime(1900, 1, 1)
+                OpName = orderHead.OpName.TrimToSize(15),
+                MachineID = pOrder.Platform_Name.TrimToSize(15),
+                GiftCardExpireDate = new DateTime(1900, 1, 1),
+                Notes = pOrder.Platform_Name.ToUpper().TrimToSize(50),
             };
 
         }
@@ -1030,7 +1105,7 @@ namespace DDAApi.Order_Parser
                     Price = item.Price,
                     PrintFlag = false,
                     VoidFlag = false,
-                    OrderOperator = opName,
+                    OrderOperator = opName.TrimToSize(15),
                     PriceSelect = 0,
                     IDNo = id,
                     ItemCode = item.ItemCode,
@@ -1261,13 +1336,28 @@ namespace DDAApi.Order_Parser
 
             if (!string.IsNullOrEmpty(orderNotes))
             {
-                return FullWidthString.Get(orderNotes, skipLinefeed);
+                orderNotes = GetChnConvertString(orderNotes);
+
+                return StringUtil.FullWidthString(orderNotes, skipLinefeed);
             }
             else
             {
                 return "";
             }
 
+        }
+
+
+        private string GetChnConvertString(string orgSt)
+        {
+            if (this._options.ChnCodePage == 1)
+            {
+                return orgSt.ToBig5();
+            }
+            else
+            {
+                return orgSt.ToGB();
+            }
         }
 
         #endregion

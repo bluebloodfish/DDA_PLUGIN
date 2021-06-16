@@ -23,6 +23,7 @@ using DDAApi.TTOpenApi;
 using Microsoft.EntityFrameworkCore;
 using DDAApi.CancelOrderQueue;
 using DDAApi.OrderNoQueue;
+using Microsoft.AspNetCore.Hosting;
 
 namespace DDAApi.WebApi
 {
@@ -44,6 +45,7 @@ namespace DDAApi.WebApi
         private readonly ITT_OrderProcess_Log_Manage _orderProcessLogManage;
         private readonly ITT_OrderNoMapping_Manage _orderNoMappingManage;
         private readonly IOrderHLogManager _orderHLog;
+        private readonly IHostingEnvironment _env;
         private readonly AppDbContext _ctx;
         private readonly IServiceCollection _serices;
         
@@ -61,7 +63,8 @@ namespace DDAApi.WebApi
                                    IOrderNoQueueProvider orderNoQueueProvider,
                                    ITT_OrderProcess_Log_Manage orderProcessLogManage,
                                    ITT_OrderNoMapping_Manage orderNoMapping_Manage,
-                                   IOrderHLogManager orderHLog)
+                                   IOrderHLogManager orderHLog,
+                                   IHostingEnvironment env)
         {
             this._logger = logger;
             this._config = config;
@@ -77,12 +80,13 @@ namespace DDAApi.WebApi
             this._orderProcessLogManage = orderProcessLogManage;
             this._orderNoMappingManage = orderNoMapping_Manage;
             this._orderHLog = orderHLog;
+            this._env = env;
         }
 
         [HttpGet("GetVersion")]
         public IActionResult GetVersion()
         {
-            return Ok(new { code = 0, data = new { Version = "2.0.3" } });
+            return Ok(new { code = 0, data = new { Version = "2.0.5" } });
         }
 
 
@@ -102,7 +106,8 @@ namespace DDAApi.WebApi
                     LogDateTime = DateTime.Now,
                     Status = 90002,
                     StatusNotes = "Received-CodeMapping",
-                    ErrorId = ""
+                    ErrorId = "",
+                    JsonStr = json
                 });
 
                 OrderProcessResult result = new OrderProcessResult();
@@ -116,7 +121,8 @@ namespace DDAApi.WebApi
                     LogDateTime = DateTime.Now,
                     Status = result.Result.Status.ApiCode(),
                     StatusNotes = result.Result.Message,
-                    ErrorId = result.ErrorId                   
+                    ErrorId = result.ErrorId,
+                    JsonStr = ""
                 });
 
                 var mapping = this._orderNoMappingManage.GetMapping(result.PosOrderNo, pOrder.Order.TT_Order_Id);
@@ -165,6 +171,8 @@ namespace DDAApi.WebApi
         [HttpPost("SimpleOrder")]
         public async Task<IActionResult> SimpleOrder([FromBody] PlatformOrder pOrder)
         {
+            var json = JsonConvert.SerializeObject(pOrder);
+            this._logger.LogInformation($"*********OrderWithPosCode******** \n {json} \n***************************");
             try {
 
                 await this._orderProcessLogManage.AddOrderProcessLog(new TT_OrderProcess_Log
@@ -175,7 +183,8 @@ namespace DDAApi.WebApi
                     LogDateTime = DateTime.Now,
                     Status = 90001,
                     StatusNotes = "Received-SimpleOrder",
-                    ErrorId = ""
+                    ErrorId = "",
+                    JsonStr = json
                 });
 
                 OrderProcessResult result = new OrderProcessResult();
@@ -189,7 +198,8 @@ namespace DDAApi.WebApi
                     LogDateTime = DateTime.Now,
                     Status = result.Result.Status.ApiCode(),
                     StatusNotes = result.Result.Message,
-                    ErrorId = result.ErrorId
+                    ErrorId = result.ErrorId,
+                    JsonStr = ""
                 });
 
 
@@ -244,7 +254,7 @@ namespace DDAApi.WebApi
         {
             var json = JsonConvert.SerializeObject(pOrder);
             this._logger.LogInformation($"*********Add Order******** \n {json} \n***************************");
-
+            this._logger.LogInformation(JsonConvert.SerializeObject(this._options));
             try
             {
                 await this._orderProcessLogManage.AddOrderProcessLog(new TT_OrderProcess_Log
@@ -255,10 +265,15 @@ namespace DDAApi.WebApi
                     LogDateTime = DateTime.Now,
                     Status = 90003,
                     StatusNotes = "Received-OrderQueue",
-                    ErrorId = ""
+                    ErrorId = "",
+                    JsonStr = json
                 });
 
                 this._queueService.Enqueue(pOrder);
+                //if (_env.IsDevelopment()) {
+                    //return Ok(new { code = 0, message = JsonConvert.SerializeObject(this._options), datetime = DateTime.Now.ToString() });
+                //}
+
                 return Ok(new { code = 0, message = "OK" });
             }
             catch (Exception ex)
